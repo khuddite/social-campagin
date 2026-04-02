@@ -3,12 +3,12 @@
 from __future__ import annotations
 
 import base64
-import json
 from pathlib import Path
 
 from langchain_openai import ChatOpenAI
 
 from social_campaign.models import CampaignState, CheckResult
+from social_campaign.utils.llm_utils import parse_llm_json
 
 
 def _image_to_base64(path: str) -> str:
@@ -54,7 +54,7 @@ def check_brand(state: CampaignState) -> dict:
         ]
 
         response = llm.invoke([{"role": "user", "content": prompt}])
-        data = json.loads(response.content)
+        data = parse_llm_json(response.content)
         results[slug] = CheckResult(**data)
 
     return {"brand_check_results": results}

@@ -2,11 +2,10 @@
 
 from __future__ import annotations
 
-import json
-
 from langchain_openai import ChatOpenAI
 
 from social_campaign.models import CampaignState, CheckResult
+from social_campaign.utils.llm_utils import parse_llm_json
 
 
 def check_legal(state: CampaignState) -> dict:
@@ -43,7 +42,7 @@ def check_legal(state: CampaignState) -> dict:
         )
 
         response = llm.invoke(prompt)
-        data = json.loads(response.content)
+        data = parse_llm_json(response.content)
         results[slug] = CheckResult(**data)
 
     return {"legal_check_results": results}

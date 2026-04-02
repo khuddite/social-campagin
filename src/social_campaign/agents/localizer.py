@@ -2,11 +2,10 @@
 
 from __future__ import annotations
 
-import json
-
 from langchain_openai import ChatOpenAI
 
 from social_campaign.models import CampaignState, LocalizedCopy
+from social_campaign.utils.llm_utils import parse_llm_json
 
 
 def localize_copy(state: CampaignState) -> dict:
@@ -33,7 +32,7 @@ def localize_copy(state: CampaignState) -> dict:
         )
 
         response = llm.invoke(prompt)
-        data = json.loads(response.content)
+        data = parse_llm_json(response.content)
         localized[slug] = LocalizedCopy(
             language=brief.target_language,
             headline=data["headline"],

@@ -43,6 +43,25 @@ def center_crop_to_ratio(img: Image.Image, ratio: str) -> Image.Image:
     return img.resize((target_w, target_h), Image.LANCZOS)
 
 
+def _wrap_text(draw: ImageDraw.ImageDraw, text: str, font, max_width: int) -> str:
+    """Wrap text to fit within max_width pixels."""
+    words = text.split()
+    if not words:
+        return text
+    lines: list[str] = []
+    current = words[0]
+    for word in words[1:]:
+        test = f"{current} {word}"
+        bbox = draw.textbbox((0, 0), test, font=font)
+        if bbox[2] - bbox[0] > max_width:
+            lines.append(current)
+            current = word
+        else:
+            current = test
+    lines.append(current)
+    return "\n".join(lines)
+
+
 def overlay_text(
     img: Image.Image,
     headline: str,
@@ -64,8 +83,13 @@ def overlay_text(
     padding = int(w * 0.05)
     margin_bottom = int(h * 0.08)
 
-    body_bbox = draw.textbbox((0, 0), body, font=body_font)
-    headline_bbox = draw.textbbox((0, 0), headline, font=headline_font)
+    # Wrap text to fit within image
+    text_max_width = w - padding * 2
+    headline = _wrap_text(draw, headline, headline_font, text_max_width)
+    body = _wrap_text(draw, body, body_font, text_max_width)
+
+    body_bbox = draw.multiline_textbbox((0, 0), body, font=body_font)
+    headline_bbox = draw.multiline_textbbox((0, 0), headline, font=headline_font)
     body_h = body_bbox[3] - body_bbox[1]
     headline_h = headline_bbox[3] - headline_bbox[1]
 
@@ -78,10 +102,10 @@ def overlay_text(
     )
 
     headline_y = strip_top + padding
-    draw.text((padding, headline_y), headline, fill="white", font=headline_font)
+    draw.multiline_text((padding, headline_y), headline, fill="white", font=headline_font)
 
     body_y = headline_y + headline_h + int(padding * 0.5)
-    draw.text((padding, body_y), body, fill=(255, 255, 255, 220), font=body_font)
+    draw.multiline_text((padding, body_y), body, fill=(255, 255, 255, 220), font=body_font)
 
     result = Image.alpha_composite(img, overlay)
     return result.convert("RGB")

@@ -2,11 +2,10 @@
 
 from __future__ import annotations
 
-import json
-
 from langchain_openai import ChatOpenAI
 
 from social_campaign.models import CampaignState, CopyVariant
+from social_campaign.utils.llm_utils import parse_llm_json
 
 
 def write_copy(state: CampaignState) -> dict:
@@ -32,7 +31,7 @@ def write_copy(state: CampaignState) -> dict:
         )
 
         response = llm.invoke(prompt)
-        data = json.loads(response.content)
+        data = parse_llm_json(response.content)
         copy_variants[product.slug] = CopyVariant(**data)
 
     return {"copy_variants": copy_variants}

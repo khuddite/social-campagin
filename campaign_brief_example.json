@@ -10,7 +10,7 @@
     {
       "name": "Citrus Burst Sparkling Water",
       "description": "Zero-calorie sparkling water with natural citrus flavors, perfect for staying refreshed on hot summer days",
-      "hero_image": null,
+      "hero_image": "assets/citrus-burst.png",
       "key_features": ["zero calories", "natural citrus flavors", "refreshing", "no artificial sweeteners"]
     },
     {

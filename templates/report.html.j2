@@ -73,7 +73,7 @@
   <div class="assets">
     {% for ratio_key, img_b64 in thumbnails.get(slug, {}).items() %}
     <div>
-      <img src="data:image/png;base64,{{ img_b64 }}" alt="{{ product.name }} {{ ratio_key }}">
+      <img src="data:image/png;base64,{{ img_b64 | safe }}" alt="{{ product.name }} {{ ratio_key }}">
       <div style="text-align:center;font-size:11px;color:#888;margin-top:4px;">{{ ratio_key }}</div>
     </div>
     {% endfor %}

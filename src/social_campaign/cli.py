@@ -69,12 +69,26 @@ def generate(brief: str, output: str):
 
     pipeline = build_pipeline()
 
-    with console.status("[bold cyan]Running pipeline...") as status:
-        status.update("[bold cyan]Parsing brief...")
-        result = pipeline.invoke({
-            "brief_path": str(brief_path),
-            "output_dir": str(output_dir),
-        })
+    node_labels = {
+        "parse_brief": "Parsing brief",
+        "write_copy": "Generating ad copy",
+        "localize_copy": "Localizing copy",
+        "generate_images": "Generating images",
+        "composite_assets": "Compositing assets",
+        "check_brand": "Checking brand compliance",
+        "check_legal": "Checking legal compliance",
+        "generate_report": "Generating report",
+    }
+
+    result = {}
+    for event in pipeline.stream({
+        "brief_path": str(brief_path),
+        "output_dir": str(output_dir),
+    }):
+        for node_name, node_result in event.items():
+            label = node_labels.get(node_name, node_name)
+            console.print(f"  [green]✓[/green] {label}")
+            result.update(node_result)
 
     console.print()
     brief_data = result.get("brief")

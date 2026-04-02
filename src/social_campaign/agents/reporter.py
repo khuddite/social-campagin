@@ -44,7 +44,10 @@ def generate_report(state: CampaignState) -> dict:
     brand_pass_count = sum(1 for r in brand_results.values() if r.passed)
     legal_flags_count = sum(len(r.flags) for r in legal_results.values())
 
-    env = Environment(loader=FileSystemLoader(str(_TEMPLATE_DIR)))
+    env = Environment(
+        loader=FileSystemLoader(str(_TEMPLATE_DIR)),
+        autoescape=True,
+    )
     template = env.get_template("report.html.j2")
 
     html = template.render(
