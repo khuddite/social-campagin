@@ -1,0 +1,28 @@
+{
+  "campaign_name": "Summer Refresh 2025",
+  "brand": {
+    "name": "FreshCo",
+    "colors": ["#00A86B", "#FFFFFF", "#1B1B1B"],
+    "logo_path": "assets/logo.png",
+    "guidelines": "Tone: upbeat, youthful, energetic. Use vibrant colors. Never use words: 'cheap', 'budget', 'discount'. Always emphasize quality and freshness."
+  },
+  "products": [
+    {
+      "name": "Citrus Burst Sparkling Water",
+      "description": "Zero-calorie sparkling water with natural citrus flavors, perfect for staying refreshed on hot summer days",
+      "hero_image": null,
+      "key_features": ["zero calories", "natural citrus flavors", "refreshing", "no artificial sweeteners"]
+    },
+    {
+      "name": "Berry Bliss Smoothie",
+      "description": "Ready-to-drink mixed berry smoothie made with real fruit, ideal for health-conscious consumers on the go",
+      "hero_image": null,
+      "key_features": ["real fruit", "no added sugar", "rich in antioxidants", "on-the-go convenience"]
+    }
+  ],
+  "target_region": "Brazil",
+  "target_language": "pt-BR",
+  "target_audience": "Health-conscious millennials and Gen Z, ages 22-35, urban professionals who value wellness and sustainability",
+  "campaign_message": "Beat the heat with nature's best flavors",
+  "aspect_ratios": ["1:1", "9:16", "16:9"]
+}
