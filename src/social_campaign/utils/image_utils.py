@@ -84,17 +84,17 @@ def composite_hero_over_background(
     aspect = tw / th  # <1 = tall, 1 = square, >1 = wide
 
     if aspect < 0.7:
-        # Tall frame (9:16): fill 90% of width, let height be whatever
-        scale = (tw * 0.90) / hw
-        scale = min(scale, th * 0.55 / hh)  # but don't exceed 55% height
+        # Tall frame (9:16): product must dominate — fill 95% width, up to 75% height
+        scale = (tw * 0.95) / hw
+        scale = min(scale, th * 0.75 / hh)
     elif aspect > 1.3:
-        # Wide frame (16:9): fill 45% of height
-        scale = (th * 0.45) / hh
-        scale = min(scale, tw * 0.60 / hw)
+        # Wide frame (16:9): fill 80% of height, up to 70% width
+        scale = (th * 0.80) / hh
+        scale = min(scale, tw * 0.70 / hw)
     else:
-        # Square (1:1): fill 85% of width
-        scale = (tw * 0.85) / hw
-        scale = min(scale, th * 0.70 / hh)
+        # Square (1:1): fill 90% of width, up to 80% height
+        scale = (tw * 0.90) / hw
+        scale = min(scale, th * 0.80 / hh)
 
     nw, nh = max(1, int(hw * scale)), max(1, int(hh * scale))
     hero = hero.resize((nw, nh), Image.LANCZOS)
