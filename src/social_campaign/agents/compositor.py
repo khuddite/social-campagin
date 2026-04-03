@@ -11,7 +11,7 @@ from social_campaign.utils.image_utils import (
     center_crop_to_ratio,
     composite_hero_over_background,
     overlay_logo,
-    overlay_text_behind,
+    overlay_text_panel,
 )
 
 
@@ -48,7 +48,7 @@ def composite_assets(state: CampaignState) -> dict:
             with_hero = composite_hero_over_background(cropped_bg, hero)
 
             # 3. Overlay text ON TOP of product (text intersects product)
-            with_text = overlay_text_behind(
+            with_text = overlay_text_panel(
                 with_hero, headline=copy.headline, body=copy.body,
             )
 

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import os
 from pathlib import Path
 
@@ -40,6 +41,8 @@ def generate(brief: str, output: str):
     missing = []
     if not os.environ.get("OPENAI_API_KEY"):
         missing.append("OPENAI_API_KEY")
+    if not os.environ.get("HF_API_TOKEN"):
+        missing.append("HF_API_TOKEN")
 
     if missing:
         console.print(
@@ -47,8 +50,6 @@ def generate(brief: str, output: str):
             f"Set them in a .env file or export them in your shell."
         )
         raise SystemExit(1)
-
-    import json
 
     raw_brief = json.loads(brief_path.read_text())
 

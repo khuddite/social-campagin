@@ -5,6 +5,8 @@ from __future__ import annotations
 import json
 import re
 
+LLM_MODEL = "gpt-4o"
+
 
 def parse_llm_json(raw: str) -> dict:
     """Parse JSON from LLM response, stripping markdown code fences if present."""

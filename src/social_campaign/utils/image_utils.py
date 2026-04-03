@@ -47,36 +47,6 @@ def _load_font(size: int, role: str = "headline", text: str = "") -> ImageFont.F
     return ImageFont.load_default(size)
 
 
-def prepare_hero_edit_canvas(
-    hero: Image.Image,
-    canvas_size: int = 1024,
-    hero_width_ratio: float = 0.78,
-    bottom_margin_ratio: float = 0.06,
-) -> Image.Image:
-    """Place the hero on a square transparent canvas for GPT Image edit (inpainting).
-
-    Transparent pixels are filled by the API; the product stays anchored bottom-center
-    so crops to 1:1, 9:16, and 16:9 keep the subject usable.
-    """
-    hero = hero.convert("RGBA")
-    canvas = Image.new("RGBA", (canvas_size, canvas_size), (0, 0, 0, 0))
-    hw, hh = hero.size
-    if hw == 0 or hh == 0:
-        return canvas
-
-    max_w = int(canvas_size * hero_width_ratio)
-    max_h = int(canvas_size * 0.88)
-    scale = min(max_w / hw, max_h / hh)
-    nw, nh = max(1, int(hw * scale)), max(1, int(hh * scale))
-    hero = hero.resize((nw, nh), Image.LANCZOS)
-
-    x = (canvas_size - nw) // 2
-    y = canvas_size - nh - int(canvas_size * bottom_margin_ratio)
-    y = max(0, min(y, canvas_size - nh))
-    canvas.paste(hero, (x, y), hero)
-    return canvas
-
-
 def composite_hero_over_background(
     background: Image.Image,
     hero: Image.Image,
@@ -181,7 +151,7 @@ def _wrap_text(draw: ImageDraw.ImageDraw, text: str, font, max_width: int) -> st
     return "\n".join(lines)
 
 
-def overlay_text_behind(
+def overlay_text_panel(
     img: Image.Image,
     headline: str,
     body: str,
@@ -283,14 +253,14 @@ def overlay_logo(
     # Paint the logo silhouette in black, then Gaussian-blur it for a smooth halo.
     glow_expand = max(4, int(logo_w * 0.03))
     glow_canvas = Image.new("RGBA", (w, h), (0, 0, 0, 0))
-    shadow = Image.new("RGBA", logo.size, (0, 0, 0, 0))
-    shadow_pixels = shadow.load()
-    logo_pixels = logo.load()
-    for sy in range(logo.height):
-        for sx in range(logo.width):
-            a = logo_pixels[sx, sy][3]
-            if a > 30:
-                shadow_pixels[sx, sy] = (0, 0, 0, min(200, a))
+    alpha = logo.split()[3]
+    shadow_alpha = alpha.point(lambda a: min(200, a) if a > 30 else 0)
+    shadow = Image.merge("RGBA", [
+        Image.new("L", logo.size, 0),
+        Image.new("L", logo.size, 0),
+        Image.new("L", logo.size, 0),
+        shadow_alpha,
+    ])
     glow_canvas.paste(shadow, (x, y), shadow)
     # Blur for a soft halo
     glow_alpha = glow_canvas.split()[3]

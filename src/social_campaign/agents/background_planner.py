@@ -5,7 +5,7 @@ from __future__ import annotations
 from langchain_openai import ChatOpenAI
 
 from social_campaign.models import BackgroundPlan, CampaignState, LocalizedCopy
-from social_campaign.utils.llm_utils import parse_llm_json
+from social_campaign.utils.llm_utils import LLM_MODEL, parse_llm_json
 
 
 def plan_backgrounds(state: CampaignState) -> dict:
@@ -41,32 +41,25 @@ def plan_backgrounds(state: CampaignState) -> dict:
         "CRITICAL CONTEXT — the product will be composited as a large centered element:\n"
         f"- Brand primary colors are: {', '.join(brief.brand.colors)}\n"
         "- The background MUST complement and harmonize with these colors.\n"
-        "- The background should make the product POP — e.g. earthy dark tones behind a "
-        "bright green product, warm natural tones behind cool products.\n\n"
-        "DESIGN DIRECTION — natural, organic, premium:\n"
-        "- This is an ECO-FRIENDLY brand. Backgrounds must feel NATURAL and ORGANIC.\n"
-        "- Use real-world natural textures and elements: wet moss, river stones, damp earth, "
-        "raw wood grain, condensation on leaves, morning dew, rainforest canopy light, "
-        "ocean mist, sunlit fern fronds, volcanic rock, bark, tropical foliage.\n"
-        "- Lighting should be NATURAL: golden hour sunlight, dappled forest light filtering "
-        "through leaves, soft overcast diffusion, warm sunrise glow, or cool blue twilight.\n"
-        "- Surfaces: natural stone slab, weathered driftwood, moss-covered rock, "
-        "wet slate, reclaimed wood, or a bed of fresh green leaves.\n"
-        "- Add depth with water droplets, morning mist, bokeh from foliage, "
-        "soft rain, or light filtering through canopy.\n"
-        "- Think Patagonia, Hydro Flask, or premium organic brand aesthetics.\n"
-        "- Each product background should feel DIFFERENT — vary the natural setting.\n\n"
+        "- The background should make the product POP — use contrasting or complementary "
+        "tones that draw the eye to the center where the product will sit.\n\n"
+        "DESIGN DIRECTION — derive from the brand guidelines:\n"
+        f"- Brand guidelines: {brief.brand.guidelines}\n"
+        "- Translate these guidelines into a visual aesthetic for the background. "
+        "Choose textures, surfaces, lighting, and environments that authentically "
+        "reflect the brand's identity and appeal to the target audience.\n"
+        "- Lighting should feel premium and intentional: studio, natural, or cinematic — "
+        "whatever best fits the brand personality.\n"
+        "- Each product background should feel DIFFERENT — vary the setting, angle, or mood.\n\n"
         "Hard rules:\n"
         "- NO text, letters, numbers, logos, UI, watermarks, or people.\n"
         "- NO product, packaging, bottles, tubs, cups, containers, drinkware, or branded items.\n"
-        "- NO man-made objects at all — ONLY natural elements (rocks, water, plants, light, sky).\n"
-        "- NO artificial/synthetic elements — no neon, no glass platforms, no studio setups.\n"
         "- Keep the center area relatively clear — the product will be composited there large.\n\n"
         "Respond ONLY with JSON: an object whose keys are product slugs (strings) and values are objects "
         'with keys "scene_description", "mood", "color_direction" (all strings).'
     )
 
-    llm = ChatOpenAI(model="gpt-4o", temperature=0.65)
+    llm = ChatOpenAI(model=LLM_MODEL, temperature=0.65)
     response = llm.invoke(prompt)
     raw = parse_llm_json(response.content)
 

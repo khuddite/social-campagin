@@ -79,7 +79,7 @@ def generate_backgrounds(state: CampaignState) -> dict:
             target_audience=brief.target_audience,
         )
 
-        img = generate_image(prompt, aspect_ratio="1:1")
+        img = generate_image(prompt)
 
         product_dir = output_dir / slug
         product_dir.mkdir(parents=True, exist_ok=True)

@@ -5,13 +5,13 @@ from __future__ import annotations
 from langchain_openai import ChatOpenAI
 
 from social_campaign.models import CampaignState, CopyVariant
-from social_campaign.utils.llm_utils import parse_llm_json
+from social_campaign.utils.llm_utils import LLM_MODEL, parse_llm_json
 
 
 def write_copy(state: CampaignState) -> dict:
     """Generate headline + body copy for every product in the brief."""
     brief = state["brief"]
-    llm = ChatOpenAI(model="gpt-4o", temperature=0.7)
+    llm = ChatOpenAI(model=LLM_MODEL, temperature=0.7)
 
     copy_variants: dict[str, CopyVariant] = {}
 

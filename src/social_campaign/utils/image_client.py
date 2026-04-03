@@ -9,16 +9,20 @@ from PIL import Image
 
 MODEL = "black-forest-labs/FLUX.1-schnell"
 
+_client: InferenceClient | None = None
 
-def generate_image(prompt: str, aspect_ratio: str = "1:1") -> Image.Image:
-    """Generate a 1024x1024 image from a text prompt using FLUX.1-schnell.
 
-    The ``aspect_ratio`` parameter is accepted for API compatibility but
-    FLUX.1 via HF Inference only produces square images. The pipeline
-    crops to the target ratio in a later compositing step.
-    """
-    token = os.environ.get("HF_API_TOKEN")
-    client = InferenceClient(token=token)
+def _get_client() -> InferenceClient:
+    global _client
+    if _client is None:
+        token = os.environ.get("HF_API_TOKEN")
+        _client = InferenceClient(token=token)
+    return _client
+
+
+def generate_image(prompt: str) -> Image.Image:
+    """Generate a 1024x1024 image from a text prompt using FLUX.1."""
+    client = _get_client()
     image = client.text_to_image(
         prompt,
         model=MODEL,

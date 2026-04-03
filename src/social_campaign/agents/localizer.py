@@ -5,14 +5,14 @@ from __future__ import annotations
 from langchain_openai import ChatOpenAI
 
 from social_campaign.models import CampaignState, LocalizedCopy
-from social_campaign.utils.llm_utils import parse_llm_json
+from social_campaign.utils.llm_utils import LLM_MODEL, parse_llm_json
 
 
 def localize_copy(state: CampaignState) -> dict:
     """Translate and culturally adapt copy for each product."""
     brief = state["brief"]
     copy_variants = state["copy_variants"]
-    llm = ChatOpenAI(model="gpt-4o", temperature=0.4)
+    llm = ChatOpenAI(model=LLM_MODEL, temperature=0.4)
 
     localized: dict[str, LocalizedCopy] = {}
 
