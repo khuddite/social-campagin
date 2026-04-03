@@ -8,16 +8,27 @@ from social_campaign.models import CampaignState
 from social_campaign.utils.image_client import generate_transparent_image
 
 
-def _build_hero_prompt(product_name: str, description: str) -> str:
+def _build_hero_prompt(
+    product_name: str,
+    description: str,
+    brand_name: str,
+    key_features: list[str],
+) -> str:
+    features_str = ", ".join(key_features) if key_features else ""
     return (
-        f"Product cutout of {product_name} on a transparent background. "
+        f"Professional product photograph of {product_name} on a transparent background. "
         f"{description}.\n\n"
-        f"The product must be centered, well-lit with soft studio lighting. "
-        f"The background must be completely transparent — no surface, no shadow, "
-        f"no gradient, no props, no other objects. ONLY the product itself.\n\n"
-        f"Do NOT render any text, letters, logos, labels, or typography on the product. "
-        f"Show it as a clean, unlabeled version with a plain matte surface.\n\n"
-        f"Style: high-end e-commerce product photography cutout."
+        f"The product must be centered, well-lit with soft studio lighting and a subtle "
+        f"green glow/rim light to give it a premium feel. The background must be "
+        f"completely transparent — no surface, no shadow, no gradient, no props.\n\n"
+        f"The product SHOULD have realistic branded packaging with:\n"
+        f"- The brand name '{brand_name}' and a leaf icon/logo on the product\n"
+        f"- The product name '{product_name}' clearly visible on the label\n"
+        f"- Key features or tagline: {features_str}\n"
+        f"- Premium, professional label design with the brand's green (#00A86B) and black color scheme\n\n"
+        f"Style: high-end product photography like Nike, Gatorade, or Hydro Flask packaging. "
+        f"Photorealistic, detailed, polished. The product should look like a real item "
+        f"you'd find on a store shelf — not a plain unlabeled mockup."
     )
 
 
@@ -34,7 +45,12 @@ def generate_images(state: CampaignState) -> dict:
             images[slug] = product.hero_image
             continue
 
-        prompt = _build_hero_prompt(product.name, product.description)
+        prompt = _build_hero_prompt(
+            product.name,
+            product.description,
+            brief.brand.name,
+            product.key_features,
+        )
         img = generate_transparent_image(prompt)
 
         product_dir = output_dir / slug

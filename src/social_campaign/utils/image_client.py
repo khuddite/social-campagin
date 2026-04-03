@@ -44,7 +44,7 @@ def generate_transparent_image(prompt: str) -> Image.Image:
         model="gpt-image-1",
         prompt=prompt,
         size="1024x1024",
-        quality="medium",
+        quality="high",
         n=1,
         background="transparent",
         output_format="png",
