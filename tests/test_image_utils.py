@@ -6,7 +6,7 @@ from social_campaign.utils.image_utils import (
     center_crop_to_ratio,
     composite_hero_over_background,
     overlay_logo,
-    overlay_text,
+    overlay_text_behind,
     prepare_hero_edit_canvas,
 )
 
@@ -29,9 +29,9 @@ def test_center_crop_16_9():
     assert result.size == (1920, 1080)
 
 
-def test_overlay_text_returns_image():
+def test_overlay_text_behind_returns_image():
     img = Image.new("RGB", (1080, 1080), "blue")
-    result = overlay_text(img, headline="Hello World", body="This is a test.")
+    result = overlay_text_behind(img, headline="Hello World", body="This is a test.")
     assert isinstance(result, Image.Image)
     assert result.size == (1080, 1080)
 

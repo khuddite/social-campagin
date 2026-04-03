@@ -65,14 +65,13 @@ def composite_hero_over_background(
     background: Image.Image,
     hero: Image.Image,
     *,
-    hero_fill_ratio: float = 0.75,
-    vertical_offset_ratio: float = -0.08,
+    hero_fill_ratio: float = 0.85,
+    vertical_offset_ratio: float = -0.05,
 ) -> Image.Image:
     """Place a product hero centered on a full-bleed background.
 
     The product is scaled so its largest dimension fills exactly
-    ``hero_fill_ratio`` of the corresponding image dimension (75% by default).
-    Vertically offset upward so the text strip at the bottom doesn't overlap.
+    ``hero_fill_ratio`` of the corresponding image dimension (85% by default).
     """
     tw, th = background.size
     background = background.convert("RGBA")
@@ -84,12 +83,12 @@ def composite_hero_over_background(
 
     # Scale so the dominant axis fills exactly hero_fill_ratio of the frame
     scale = max((tw * hero_fill_ratio) / hw, (th * hero_fill_ratio) / hh)
-    # But don't exceed the frame
-    scale = min(scale, tw * 0.95 / hw, th * 0.85 / hh)
+    # Don't exceed frame bounds
+    scale = min(scale, tw * 0.95 / hw, th * 0.92 / hh)
     nw, nh = max(1, int(hw * scale)), max(1, int(hh * scale))
     hero = hero.resize((nw, nh), Image.LANCZOS)
 
-    # Center horizontally, center vertically with upward offset
+    # Center horizontally, center vertically with slight upward offset
     x = (tw - nw) // 2
     y = (th - nh) // 2 + int(th * vertical_offset_ratio)
     y = max(0, min(y, th - nh))
@@ -137,56 +136,64 @@ def _wrap_text(draw: ImageDraw.ImageDraw, text: str, font, max_width: int) -> st
     return "\n".join(lines)
 
 
-def overlay_text(
+def overlay_text_behind(
     img: Image.Image,
     headline: str,
     body: str,
-    max_font_ratio: float = 0.06,
 ) -> Image.Image:
-    """Overlay headline and body text with a semi-transparent background strip."""
+    """Overlay a large headline in the lower-center that the product will intersect.
+
+    This is drawn BEFORE the product is composited, so the product appears
+    in front of the text for an editorial, eye-catching look.
+    The headline is big and bold; the body sits below it in a smaller font.
+    """
     img = img.convert("RGBA")
     w, h = img.size
 
     overlay = Image.new("RGBA", (w, h), (0, 0, 0, 0))
     draw = ImageDraw.Draw(overlay)
 
-    headline_size = max(int(h * max_font_ratio * 0.85), 20)
-    body_size = max(int(headline_size * 0.45), 12)
+    # Large headline — sized to be impactful and overlap with the product area
+    headline_size = max(int(h * 0.07), 28)
+    body_size = max(int(headline_size * 0.35), 12)
     headline_font = _load_font(headline_size, role="headline")
     body_font = _load_font(body_size, role="body")
 
-    # Bebas Neue is an all-caps display font — force uppercase for impact
     headline = headline.upper()
 
-    padding = int(w * 0.04)
-    margin_bottom = int(h * 0.02)
-
-    # Wrap text to fit within image
+    padding = int(w * 0.05)
     text_max_width = w - padding * 2
     headline = _wrap_text(draw, headline, headline_font, text_max_width)
     body = _wrap_text(draw, body, body_font, text_max_width)
 
-    body_bbox = draw.multiline_textbbox((0, 0), body, font=body_font)
     headline_bbox = draw.multiline_textbbox((0, 0), headline, font=headline_font)
-    body_h = body_bbox[3] - body_bbox[1]
+    body_bbox = draw.multiline_textbbox((0, 0), body, font=body_font)
     headline_h = headline_bbox[3] - headline_bbox[1]
+    body_h = body_bbox[3] - body_bbox[1]
 
-    total_text_h = headline_h + body_h + int(padding * 0.5)
-    strip_top = h - margin_bottom - total_text_h - padding * 2
+    # Position headline in the lower third — product will overlap it from above
+    headline_y = int(h * 0.68)
+    body_y = headline_y + headline_h + int(padding * 0.4)
 
-    draw.rectangle(
-        [(0, strip_top), (w, strip_top + total_text_h + padding * 2)],
-        fill=(0, 0, 0, 140),
+    # Draw headline with a subtle shadow for depth
+    for dx, dy in [(2, 2), (-1, -1)]:
+        draw.multiline_text(
+            (padding + dx, headline_y + dy), headline,
+            fill=(0, 0, 0, 100), font=headline_font,
+        )
+    draw.multiline_text(
+        (padding, headline_y), headline,
+        fill=(255, 255, 255, 240), font=headline_font,
     )
 
-    headline_y = strip_top + padding
-    draw.multiline_text((padding, headline_y), headline, fill="white", font=headline_font)
-
-    body_y = headline_y + headline_h + int(padding * 0.5)
-    draw.multiline_text((padding, body_y), body, fill=(255, 255, 255, 220), font=body_font)
+    # Body text below with slight transparency
+    draw.multiline_text(
+        (padding, body_y), body,
+        fill=(255, 255, 255, 190), font=body_font,
+    )
 
     result = Image.alpha_composite(img, overlay)
-    return result.convert("RGB")
+    return result.convert("RGBA")
 
 
 def overlay_logo(

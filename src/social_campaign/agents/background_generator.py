@@ -47,12 +47,14 @@ def _build_background_prompt(
         f"cool water blues, warm amber sunlight. The product is green/black so "
         f"natural earth tones and rich greens will harmonize beautifully.\n"
         f"Market: {target_region}\n\n"
-        "ABSOLUTE RULES:\n"
+        "ABSOLUTE RULES (violating any of these makes the image unusable):\n"
         "- ZERO text, letters, numbers, logos, watermarks, labels, UI of any kind\n"
-        "- ZERO products, bottles, containers, packaging, or branded objects\n"
+        "- ZERO bottles, cups, containers, tubs, cans, jars, packaging, or ANY man-made product\n"
+        "- ZERO drinkware of any kind — no water bottles, no flasks, no glasses, no cups\n"
         "- ZERO people, hands, faces, silhouettes\n"
         "- ZERO artificial elements — no neon, no glass platforms, no studio gear\n"
-        "- ZERO indoor environments — this is pure nature"
+        "- ZERO indoor environments — this is pure nature\n"
+        "- The image must contain ONLY natural elements: rocks, water, plants, light, sky"
     )
 
 
