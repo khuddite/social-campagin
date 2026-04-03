@@ -18,8 +18,8 @@ _FONTS_DIR = Path(__file__).parent.parent.parent.parent / "fonts"
 _HEADLINE_FONT_PATH = _FONTS_DIR / "PermanentMarker-Regular.ttf"
 _BODY_FONT_PATH = _FONTS_DIR / "Raleway-Medium.ttf"
 _FALLBACK_FONT_PATH = _FONTS_DIR / "Righteous-Regular.ttf"
-# CJK / universal fallback for non-Latin scripts (Japanese, Chinese, Korean, Arabic, etc.)
-_CJK_FONT_PATH = _FONTS_DIR / "HiraginoSans-W6.ttc"
+# Universal fallback for non-Latin scripts (Japanese, Chinese, Korean, Arabic, etc.)
+_CJK_FONT_PATH = _FONTS_DIR / "ArialUnicode.ttf"
 
 
 def _has_non_latin(text: str) -> bool:

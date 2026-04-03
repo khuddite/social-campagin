@@ -1,5 +1,5 @@
 {
-  "campaign_name": "Everyday Fresh 2025",
+  "campaign_name": "Fresh Wave Korea 2025",
   "brand": {
     "name": "FreshCo",
     "colors": ["#00A86B", "#FFFFFF", "#1B1B1B"],
@@ -20,9 +20,9 @@
       "key_features": ["no artificial colours", "light citrus taste", "20 servings per tub", "Informed Sport certified"]
     }
   ],
-  "target_region": "Japan",
-  "target_language": "ja",
-  "target_audience": "Urban professionals and parents in greater Tokyo and Osaka, ages 30–55, who care about daily hydration, work–life balance, and family wellness — not focused on competitive sport",
-  "campaign_message": "Small habits, every day. Stay fresh from morning commute to evening wind-down.",
+  "target_region": "South Korea",
+  "target_language": "ko",
+  "target_audience": "Office workers and fitness enthusiasts in the Seoul Capital Area and Busan, ages 25–45, who balance long commutes, evening gym sessions, and weekend hiking — value premium gear, subtle branding, and wellness as daily discipline",
+  "campaign_message": "Stay sharp from the subway to the summit — hydrate with intention, every day.",
   "aspect_ratios": ["1:1", "9:16", "16:9"]
 }
