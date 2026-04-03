@@ -239,7 +239,7 @@ def overlay_logo(
     max_ratio: float = 0.22,
     padding_ratio: float = 0.025,
 ) -> Image.Image:
-    """Place the brand logo in the top-right corner with a frosted backing."""
+    """Place the brand logo in the top-right corner with a glow for visibility."""
     img = img.convert("RGBA")
     w, h = img.size
 
@@ -258,16 +258,16 @@ def overlay_logo(
     x = w - logo_w - pad
     y = pad
 
-    # Frosted pill behind logo for guaranteed visibility
+    # Create a dark shadow version of the logo for contrast/glow effect.
+    # This makes the logo readable on any background without a clunky rectangle.
+    shadow = Image.new("RGBA", logo.size, (0, 0, 0, 0))
+    logo_alpha = logo.split()[3]
+    shadow.putalpha(logo_alpha)
+    # Draw shadow slightly offset in multiple directions for a glow
     overlay = Image.new("RGBA", (w, h), (0, 0, 0, 0))
-    draw = ImageDraw.Draw(overlay)
-    inset = int(pad * 0.6)
-    draw.rounded_rectangle(
-        [(x - inset, y - inset), (x + logo_w + inset, y + logo_h + inset)],
-        radius=int(inset * 1.5),
-        fill=(0, 0, 0, 120),
-    )
-    img = Image.alpha_composite(img, overlay)
+    for dx, dy in [(-2, -2), (2, -2), (-2, 2), (2, 2), (0, 3), (3, 0), (-3, 0), (0, -3)]:
+        overlay.paste(shadow, (x + dx, y + dy), shadow)
 
+    img = Image.alpha_composite(img, overlay)
     img.paste(logo, (x, y), logo)
     return img.convert("RGB")
