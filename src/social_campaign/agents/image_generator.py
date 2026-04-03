@@ -5,7 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from social_campaign.models import CampaignState
-from social_campaign.utils.openai_image_client import generate_image
+from social_campaign.utils.image_client import generate_image
 
 
 def _build_hero_prompt(product_name: str, description: str, brand_name: str, region: str) -> str:
