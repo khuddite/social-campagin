@@ -51,9 +51,9 @@ def _make_state(tmp_path: Path) -> CampaignState:
     )
 
 
-@patch("social_campaign.agents.image_generator.generate_image")
+@patch("social_campaign.agents.image_generator.generate_transparent_image")
 def test_generates_missing_and_skips_existing(mock_gen, tmp_path):
-    fake_img = Image.new("RGB", (1024, 1024), "green")
+    fake_img = Image.new("RGBA", (1024, 1024), (0, 128, 0, 200))
     mock_gen.return_value = fake_img
 
     state = _make_state(tmp_path)

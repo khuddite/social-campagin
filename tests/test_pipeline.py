@@ -11,7 +11,7 @@ from social_campaign.pipeline import build_pipeline
 @patch("social_campaign.agents.localizer.ChatOpenAI")
 @patch("social_campaign.agents.copy_writer.ChatOpenAI")
 @patch("social_campaign.agents.background_generator.generate_image")
-@patch("social_campaign.agents.image_generator.generate_image")
+@patch("social_campaign.agents.image_generator.generate_transparent_image")
 def test_full_pipeline(
     mock_hero_image,
     mock_bg_image,
@@ -20,9 +20,10 @@ def test_full_pipeline(
     mock_bg_planner_chat,
     tmp_path: Path,
 ):
-    fake = Image.new("RGB", (1024, 1024), "green")
-    mock_hero_image.return_value = fake
-    mock_bg_image.return_value = fake
+    fake_bg = Image.new("RGB", (1024, 1024), "green")
+    fake_hero = Image.new("RGBA", (1024, 1024), (0, 128, 0, 200))
+    mock_hero_image.return_value = fake_hero
+    mock_bg_image.return_value = fake_bg
 
     for mock_cls in [mock_copy_chat, mock_local_chat]:
         llm = MagicMock()
