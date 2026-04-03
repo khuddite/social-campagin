@@ -69,14 +69,14 @@ def generate(brief: str, output: str):
     pipeline = build_pipeline()
 
     node_labels = {
-        "parse_brief": "Parsing brief",
-        "write_copy": "Generating ad copy",
-        "localize_copy": "Localizing copy",
-        "plan_backgrounds": "Planning ad backgrounds",
-        "generate_images": "Generating hero images",
-        "generate_backgrounds": "Generating ad backgrounds",
-        "composite_assets": "Compositing assets",
-        "generate_report": "Generating report",
+        "parse_brief": "Validating campaign brief & resolving assets",
+        "write_copy": "Writing ad copy with GPT-4o",
+        "localize_copy": "Localizing & culturally adapting copy",
+        "plan_backgrounds": "Art-directing background scenes with GPT-4o",
+        "generate_images": "Generating hero product images with FLUX.1",
+        "generate_backgrounds": "Generating background scenes with FLUX.1",
+        "composite_assets": "Compositing final ads (hero + background + text + logo)",
+        "generate_report": "Building HTML campaign report",
     }
 
     result = {}

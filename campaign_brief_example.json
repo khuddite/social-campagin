@@ -1,5 +1,5 @@
 {
-  "campaign_name": "Campus Fresh Korea 2025",
+  "campaign_name": "FreshCo Cage — USA 2025",
   "brand": {
     "name": "FreshCo",
     "colors": ["#00A86B", "#FFFFFF", "#1B1B1B"],
@@ -20,9 +20,9 @@
       "key_features": ["no artificial colours", "light citrus taste", "20 servings per tub", "Informed Sport certified"]
     }
   ],
-  "target_region": "South Korea",
-  "target_language": "ko",
-  "target_audience": "University and gap-year students in Seoul, Busan, and Daejeon, ages 18–26, who study long hours, hit the campus gym or run clubs, play intramural sports, and care about staying alert, hydrated, and photo-ready on a student budget",
-  "campaign_message": "시험 주간도, 운동하는 날도. 수분 챙기고 리듬 지켜요 — 캠퍼스 라이프, 내 방식대로.",
+  "target_region": "United States",
+  "target_language": "en-US",
+  "target_audience": "Professional and serious amateur MMA fighters — ages roughly 18–38 — who train at high-volume gyms and camps (e.g. Las Vegas, Albuquerque, South Florida), grind through sparring and conditioning, manage weight cuts and rehydration, and prioritise electrolytes, recovery, and performance on fight week",
+  "campaign_message": "Train hard, cut smart, recover strong — hydration for every round, every session, every weigh-in.",
   "aspect_ratios": ["1:1", "9:16", "16:9"]
 }
