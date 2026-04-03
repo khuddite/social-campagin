@@ -65,13 +65,13 @@ def composite_hero_over_background(
     background: Image.Image,
     hero: Image.Image,
     *,
-    hero_fill_ratio: float = 0.85,
     vertical_offset_ratio: float = -0.05,
 ) -> Image.Image:
     """Place a product hero centered on a full-bleed background.
 
-    The product is scaled so its largest dimension fills exactly
-    ``hero_fill_ratio`` of the corresponding image dimension (85% by default).
+    Scaling adapts to aspect ratio: tall frames (9:16) use the width as the
+    constraint so the product fills the horizontal space aggressively.
+    Square and wide frames use the larger dimension.
     """
     tw, th = background.size
     background = background.convert("RGBA")
@@ -81,10 +81,21 @@ def composite_hero_over_background(
     if hw == 0 or hh == 0:
         return background
 
-    # Scale so the dominant axis fills exactly hero_fill_ratio of the frame
-    scale = max((tw * hero_fill_ratio) / hw, (th * hero_fill_ratio) / hh)
-    # Don't exceed frame bounds
-    scale = min(scale, tw * 0.95 / hw, th * 0.92 / hh)
+    aspect = tw / th  # <1 = tall, 1 = square, >1 = wide
+
+    if aspect < 0.7:
+        # Tall frame (9:16): fill 90% of width, let height be whatever
+        scale = (tw * 0.90) / hw
+        scale = min(scale, th * 0.55 / hh)  # but don't exceed 55% height
+    elif aspect > 1.3:
+        # Wide frame (16:9): fill 45% of height
+        scale = (th * 0.45) / hh
+        scale = min(scale, tw * 0.60 / hw)
+    else:
+        # Square (1:1): fill 85% of width
+        scale = (tw * 0.85) / hw
+        scale = min(scale, th * 0.70 / hh)
+
     nw, nh = max(1, int(hw * scale)), max(1, int(hh * scale))
     hero = hero.resize((nw, nh), Image.LANCZOS)
 
@@ -172,7 +183,7 @@ def overlay_text_behind(
     headline_h = headline_bbox[3] - headline_bbox[1]
     body_h = body_bbox[3] - body_bbox[1]
 
-    gap = int(padding * 0.4)
+    gap = int(padding * 1.0)
     total_text_h = headline_h + gap + body_h
 
     # Position text block in the lower portion — product will overlap the top
