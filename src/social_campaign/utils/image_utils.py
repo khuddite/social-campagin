@@ -83,16 +83,24 @@ def composite_hero_over_background(
 
     aspect = tw / th  # <1 = tall, 1 = square, >1 = wide
 
+    hero_aspect = hw / hh  # >1 = landscape hero, <1 = portrait hero
+
     if aspect < 0.7:
-        # Tall frame (9:16): product must dominate — fill 95% width, up to 75% height
-        scale = (tw * 0.95) / hw
-        scale = min(scale, th * 0.75 / hh)
+        # Tall frame (9:16)
+        if hero_aspect > 1.2:
+            # Landscape hero on tall frame — scale by height to make it
+            # dominant. Width will bleed past edges (common ad technique).
+            scale = (th * 0.55) / hh
+        else:
+            # Portrait/square hero — fill 95% width
+            scale = (tw * 0.95) / hw
+            scale = min(scale, th * 0.75 / hh)
     elif aspect > 1.3:
-        # Wide frame (16:9): fill 80% of height, up to 70% width
+        # Wide frame (16:9)
         scale = (th * 0.80) / hh
         scale = min(scale, tw * 0.70 / hw)
     else:
-        # Square (1:1): fill 90% of width, up to 80% height
+        # Square (1:1)
         scale = (tw * 0.90) / hw
         scale = min(scale, th * 0.80 / hh)
 
@@ -102,11 +110,21 @@ def composite_hero_over_background(
     # Center horizontally, center vertically with slight upward offset
     x = (tw - nw) // 2
     y = (th - nh) // 2 + int(th * vertical_offset_ratio)
-    y = max(0, min(y, th - nh))
 
-    layer = Image.new("RGBA", (tw, th), (0, 0, 0, 0))
-    layer.paste(hero, (x, y), hero)
-    return Image.alpha_composite(background, layer)
+    # Composite on an oversized canvas then crop — handles bleed gracefully
+    canvas_w = max(tw, nw + abs(x) * 2)
+    canvas_h = max(th, nh + abs(y) * 2)
+    ox = (canvas_w - tw) // 2  # offset to center the background on canvas
+    oy = (canvas_h - th) // 2
+
+    canvas = Image.new("RGBA", (canvas_w, canvas_h), (0, 0, 0, 0))
+    canvas.paste(background, (ox, oy))
+    layer = Image.new("RGBA", (canvas_w, canvas_h), (0, 0, 0, 0))
+    layer.paste(hero, (ox + x, oy + y), hero)
+    canvas = Image.alpha_composite(canvas, layer)
+
+    # Crop back to target size
+    return canvas.crop((ox, oy, ox + tw, oy + th))
 
 
 def center_crop_to_ratio(img: Image.Image, ratio: str) -> Image.Image:
