@@ -10,13 +10,13 @@
     {
       "name": "ProFlow 750 Insulated Bottle",
       "description": "Double-wall stainless bottle that keeps drinks cold for 24 hours — built for training sessions, match days, and long rides",
-      "hero_image": "assets/proflow.png",
+      "hero_image": "None",
       "key_features": ["leak-proof cap", "BPA-free", "fits standard bike cages", "easy-grip finish"]
     },
     {
       "name": "ChargeUp Electrolyte Mix — Citrus",
       "description": "Low-sugar hydration powder with sodium, potassium, and magnesium — mix with water for fast replenishment after sweat-heavy workouts",
-      "hero_image": "assets/chargeup.png",
+      "hero_image": "None",
       "key_features": ["no artificial colours", "light citrus taste", "20 servings per tub", "Informed Sport certified"]
     }
   ],
