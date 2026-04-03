@@ -4,8 +4,10 @@ from PIL import Image
 
 from social_campaign.utils.image_utils import (
     center_crop_to_ratio,
+    composite_hero_over_background,
     overlay_logo,
     overlay_text,
+    prepare_hero_edit_canvas,
 )
 
 
@@ -32,6 +34,21 @@ def test_overlay_text_returns_image():
     result = overlay_text(img, headline="Hello World", body="This is a test.")
     assert isinstance(result, Image.Image)
     assert result.size == (1080, 1080)
+
+
+def test_prepare_hero_edit_canvas_is_square_rgba():
+    hero = Image.new("RGBA", (200, 200), (255, 0, 0, 255))
+    canvas = prepare_hero_edit_canvas(hero, canvas_size=1024)
+    assert canvas.size == (1024, 1024)
+    assert canvas.mode == "RGBA"
+
+
+def test_composite_hero_over_background():
+    bg = Image.new("RGB", (1080, 1080), "gray")
+    hero = Image.new("RGBA", (400, 400), (255, 0, 0, 200))
+    out = composite_hero_over_background(bg, hero)
+    assert out.size == (1080, 1080)
+    assert out.mode == "RGBA"
 
 
 def test_overlay_logo(tmp_path: Path):

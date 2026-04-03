@@ -13,11 +13,15 @@ from social_campaign.models import (
 
 
 def test_composite_creates_all_ratio_files(tmp_path: Path):
-    hero_path = tmp_path / "hero.png"
-    Image.new("RGB", (1024, 1024), "green").save(hero_path)
-
     logo_path = tmp_path / "logo.png"
     Image.new("RGBA", (200, 100), (255, 0, 0, 200)).save(logo_path)
+
+    # Background (RGB) and hero (RGBA) as separate images
+    bg_path = tmp_path / "background.png"
+    Image.new("RGB", (1024, 1024), "skyblue").save(bg_path)
+
+    hero_path = tmp_path / "hero.png"
+    Image.new("RGBA", (500, 800), (0, 128, 0, 200)).save(hero_path)
 
     output_dir = tmp_path / "output"
 
@@ -41,6 +45,7 @@ def test_composite_creates_all_ratio_files(tmp_path: Path):
             "product-a": LocalizedCopy(language="en", headline="Test Headline", body="Test body text."),
         },
         generated_images={"product-a": str(hero_path)},
+        generated_backgrounds={"product-a": str(bg_path)},
         composited_assets={},
         output_dir=str(output_dir),
     )

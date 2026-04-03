@@ -4,7 +4,11 @@ from unittest.mock import MagicMock, patch
 
 from PIL import Image
 
-from social_campaign.utils.openai_image_client import MODEL, SIZE, generate_image
+from social_campaign.utils.openai_image_client import (
+    DALLE_SIZE_BY_ASPECT,
+    MODEL,
+    generate_image,
+)
 
 
 def _fake_png_b64() -> str:
@@ -28,5 +32,21 @@ def test_generate_image_returns_pil_image(mock_openai_cls):
     mock_client.images.generate.assert_called_once()
     call_kwargs = mock_client.images.generate.call_args.kwargs
     assert call_kwargs["model"] == MODEL
-    assert call_kwargs["size"] == SIZE
+    assert call_kwargs["size"] == DALLE_SIZE_BY_ASPECT["1:1"]
     assert call_kwargs["response_format"] == "b64_json"
+
+
+@patch("social_campaign.utils.openai_image_client.OpenAI")
+def test_generate_image_uses_size_for_aspect(mock_openai_cls):
+    mock_client = MagicMock()
+    mock_openai_cls.return_value = mock_client
+    mock_response = MagicMock()
+    mock_response.data = [MagicMock(b64_json=_fake_png_b64())]
+    mock_client.images.generate.return_value = mock_response
+
+    generate_image("wide background", aspect_ratio="16:9")
+
+    assert (
+        mock_client.images.generate.call_args.kwargs["size"]
+        == DALLE_SIZE_BY_ASPECT["16:9"]
+    )

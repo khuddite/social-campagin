@@ -7,16 +7,22 @@ from PIL import Image
 from social_campaign.pipeline import build_pipeline
 
 
+@patch("social_campaign.agents.background_planner.ChatOpenAI")
 @patch("social_campaign.agents.localizer.ChatOpenAI")
 @patch("social_campaign.agents.copy_writer.ChatOpenAI")
+@patch("social_campaign.agents.background_generator.generate_image")
 @patch("social_campaign.agents.image_generator.generate_image")
 def test_full_pipeline(
-    mock_gen_image,
+    mock_hero_image,
+    mock_bg_image,
     mock_copy_chat,
     mock_local_chat,
+    mock_bg_planner_chat,
     tmp_path: Path,
 ):
-    mock_gen_image.return_value = Image.new("RGB", (1024, 1024), "green")
+    fake = Image.new("RGB", (1024, 1024), "green")
+    mock_hero_image.return_value = fake
+    mock_bg_image.return_value = fake
 
     for mock_cls in [mock_copy_chat, mock_local_chat]:
         llm = MagicMock()
@@ -24,6 +30,20 @@ def test_full_pipeline(
             content='{"headline": "Test Head", "body": "Test body text."}'
         )
         mock_cls.return_value = llm
+
+    bg_llm = MagicMock()
+    bg_llm.invoke.return_value = MagicMock(
+        content=json.dumps(
+            {
+                "test-product": {
+                    "scene_description": "Soft gradient studio with subtle depth",
+                    "mood": "fresh and energetic",
+                    "color_direction": "cool highlights and clean whites",
+                }
+            }
+        )
+    )
+    mock_bg_planner_chat.return_value = bg_llm
 
     logo_path = tmp_path / "logo.png"
     Image.new("RGBA", (200, 100), (255, 255, 255, 200)).save(logo_path)

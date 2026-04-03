@@ -71,7 +71,9 @@ def generate(brief: str, output: str):
         "parse_brief": "Parsing brief",
         "write_copy": "Generating ad copy",
         "localize_copy": "Localizing copy",
-        "generate_images": "Generating images",
+        "plan_backgrounds": "Planning ad backgrounds",
+        "generate_images": "Generating hero images",
+        "generate_backgrounds": "Generating ad backgrounds",
         "composite_assets": "Compositing assets",
         "generate_report": "Generating report",
     }

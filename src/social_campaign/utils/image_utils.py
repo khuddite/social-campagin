@@ -24,6 +24,67 @@ def _load_font(size: int) -> ImageFont.FreeTypeFont | ImageFont.ImageFont:
         return ImageFont.load_default(size)
 
 
+def prepare_hero_edit_canvas(
+    hero: Image.Image,
+    canvas_size: int = 1024,
+    hero_width_ratio: float = 0.78,
+    bottom_margin_ratio: float = 0.06,
+) -> Image.Image:
+    """Place the hero on a square transparent canvas for GPT Image edit (inpainting).
+
+    Transparent pixels are filled by the API; the product stays anchored bottom-center
+    so crops to 1:1, 9:16, and 16:9 keep the subject usable.
+    """
+    hero = hero.convert("RGBA")
+    canvas = Image.new("RGBA", (canvas_size, canvas_size), (0, 0, 0, 0))
+    hw, hh = hero.size
+    if hw == 0 or hh == 0:
+        return canvas
+
+    max_w = int(canvas_size * hero_width_ratio)
+    max_h = int(canvas_size * 0.88)
+    scale = min(max_w / hw, max_h / hh)
+    nw, nh = max(1, int(hw * scale)), max(1, int(hh * scale))
+    hero = hero.resize((nw, nh), Image.LANCZOS)
+
+    x = (canvas_size - nw) // 2
+    y = canvas_size - nh - int(canvas_size * bottom_margin_ratio)
+    y = max(0, min(y, canvas_size - nh))
+    canvas.paste(hero, (x, y), hero)
+    return canvas
+
+
+def composite_hero_over_background(
+    background: Image.Image,
+    hero: Image.Image,
+    *,
+    hero_width_ratio: float = 0.78,
+    bottom_margin_ratio: float = 0.06,
+) -> Image.Image:
+    """Place a product hero (e.g. transparent PNG cutout) on a full-bleed background, bottom-centered."""
+    tw, th = background.size
+    background = background.convert("RGBA")
+    hero = hero.convert("RGBA")
+
+    hw, hh = hero.size
+    if hw == 0 or hh == 0:
+        return background
+
+    max_w = int(tw * hero_width_ratio)
+    max_h = int(th * 0.88)
+    scale = min(max_w / hw, max_h / hh)
+    nw, nh = max(1, int(hw * scale)), max(1, int(hh * scale))
+    hero = hero.resize((nw, nh), Image.LANCZOS)
+
+    x = (tw - nw) // 2
+    y = th - nh - int(th * bottom_margin_ratio)
+    y = max(0, min(y, th - nh))
+
+    layer = Image.new("RGBA", (tw, th), (0, 0, 0, 0))
+    layer.paste(hero, (x, y), hero)
+    return Image.alpha_composite(background, layer)
+
+
 def center_crop_to_ratio(img: Image.Image, ratio: str) -> Image.Image:
     """Crop from center and resize to the target aspect ratio dimensions."""
     target_w, target_h = ASPECT_SIZES[ratio]

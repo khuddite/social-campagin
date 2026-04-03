@@ -65,13 +65,29 @@ class LocalizedCopy(BaseModel):
     body: str
 
 
+class BackgroundPlan(BaseModel):
+    """Creative direction for an AI-generated ad background (environment only, no product)."""
+
+    scene_description: str = Field(
+        ...,
+        description="Full-bleed environment or abstract space; must not include the product itself.",
+    )
+    mood: str = Field(..., description="Emotional tone for the scene (e.g. energetic, serene).")
+    color_direction: str = Field(
+        ...,
+        description="Palette and lighting cues that harmonize with brand colors.",
+    )
+
+
 class CampaignState(TypedDict, total=False):
     """Shared state flowing through the LangGraph pipeline."""
 
     brief: CampaignBrief
     copy_variants: dict[str, CopyVariant]
     localized_copy: dict[str, LocalizedCopy]
+    background_plans: dict[str, BackgroundPlan]
     generated_images: dict[str, str]
+    generated_backgrounds: dict[str, str]
     composited_assets: dict[str, dict[str, str]]
     output_dir: str
     report_path: str

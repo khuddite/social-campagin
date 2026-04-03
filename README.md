@@ -9,14 +9,16 @@ Given a campaign brief (JSON), the pipeline:
 1. **Parses** the brief and resolves existing assets
 2. **Writes** ad copy for each product (GPT-4o)
 3. **Localizes** copy with cultural adaptation for the target market (GPT-4o)
-4. **Generates** hero images for products missing assets (DALL·E 3 via OpenAI)
-5. **Composites** final campaign images in 3 aspect ratios (1:1, 9:16, 16:9) with text overlay and brand logo
-6. **Reports** results in a self-contained HTML report
+4. **Plans** scene and lighting per product from audience, region, campaign message, and brand (GPT-4o)
+5. **Generates** hero images for products missing assets (DALL·E 3)
+6. **Integrates** each hero into one scene per product via **`images.edit`** (default **DALL·E 2**, single API call from a square PNG with transparent margins)
+7. **Crops** that master to 1:1, 9:16, and 16:9, then adds logo and localized copy
+8. **Reports** results in a self-contained HTML report
 
 ## Architecture
 
 ```
-Brief Parser → Copy Writer → Localizer → Image Generator → Compositor → Reporter
+Brief Parser → Copy Writer → Localizer → Background Planner → Hero Generator → Scene Integrator (DALL·E 2 edit) → Compositor → Reporter
 ```
 
 Each node is a specialized agent in a LangGraph StateGraph pipeline. State flows through as a typed dictionary.
@@ -27,7 +29,7 @@ Each node is a specialized agent in a LangGraph StateGraph pipeline. State flows
 
 - Python 3.12+
 - [uv](https://docs.astral.sh/uv/) package manager
-- OpenAI API key (GPT-4o and DALL·E 3 images)
+- OpenAI API key (GPT-4o, DALL·E 3 for optional heroes, and **DALL·E 2** `images.edit` for scene integration — set `OPENAI_IMAGE_EDIT_MODEL` only if your account supports another edit model, e.g. `gpt-image-1.5`)
 
 ### Setup
 

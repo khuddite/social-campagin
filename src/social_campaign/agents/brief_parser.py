@@ -26,7 +26,9 @@ def parse_brief(state: dict[str, Any]) -> CampaignState:
         brief=brief,
         copy_variants={},
         localized_copy={},
+        background_plans={},
         generated_images={},
+        generated_backgrounds={},
         composited_assets={},
         output_dir=output_dir,
     )
