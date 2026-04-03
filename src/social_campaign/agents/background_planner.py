@@ -19,6 +19,7 @@ def plan_backgrounds(state: CampaignState) -> dict:
         loc = localized[slug]
         lines.append(
             f"- slug `{slug}`: product={product.name!r}; description={product.description!r}; "
+            f"key features={product.key_features!r}; "
             f"localized headline={loc.headline!r} (hint for tone, not for the image text)"
         )
 
@@ -37,23 +38,28 @@ def plan_backgrounds(state: CampaignState) -> dict:
         "Products:\n"
         + "\n".join(lines)
         + "\n\n"
-        "DESIGN DIRECTION — cinematic, eye-catching, scroll-stopping ad backgrounds:\n"
+        "CRITICAL CONTEXT — the product will be composited as a large centered element:\n"
+        f"- Brand primary colors are: {', '.join(brief.brand.colors)}\n"
+        "- The background MUST complement and harmonize with these colors.\n"
+        "- If the brand uses green, the background should use complementary/analogous tones "
+        "(deep teals, dark emeralds, warm amber accents) — NOT clash with the product.\n"
+        "- The background should make the product POP through contrast — e.g. a dark moody "
+        "background for a bright green product, warm tones behind cool products.\n\n"
+        "DESIGN DIRECTION — cinematic, eye-catching, scroll-stopping:\n"
         "- Be CREATIVE and BOLD. These are hero shots for paid social — they must stop the scroll.\n"
         "- Use dramatic, cinematic lighting: neon glows, colored gel lighting, volumetric fog, "
         "light rays cutting through mist, dynamic light streaks, or moody chiaroscuro.\n"
         "- Surfaces can be abstract: reflective wet floors, glowing glass platforms, "
         "dark matte surfaces with colored reflections, or floating in atmospheric space.\n"
         "- Think movie poster aesthetics crossed with luxury product photography.\n"
-        "- Use BOLD color contrasts — deep teals against warm amber, electric green against "
-        "dark charcoal, vibrant gradients that feel alive.\n"
+        "- Use BOLD color contrasts that complement the brand palette.\n"
         "- Add depth with particles, mist, water droplets, light flares, or subtle motion blur.\n"
-        "- Each product background should feel DIFFERENT — vary the mood and palette.\n"
-        "- Culturally resonate with the target market through color energy and mood.\n\n"
+        "- Each product background should feel DIFFERENT — vary the mood and palette.\n\n"
         "Hard rules:\n"
         "- NO text, letters, numbers, logos, UI, watermarks, or people.\n"
         "- NO product, packaging, bottles, tubs, or branded items.\n"
         "- NO literal real-world environments (no gyms, parks, kitchens, offices, rooms).\n"
-        "- Keep the lower-center area relatively clear — the product will be composited there.\n\n"
+        "- Keep the center area relatively clear — the product will be composited there large.\n\n"
         "Respond ONLY with JSON: an object whose keys are product slugs (strings) and values are objects "
         'with keys "scene_description", "mood", "color_direction" (all strings).'
     )

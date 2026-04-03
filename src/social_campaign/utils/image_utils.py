@@ -65,14 +65,14 @@ def composite_hero_over_background(
     background: Image.Image,
     hero: Image.Image,
     *,
-    hero_max_width_ratio: float = 0.70,
-    hero_max_height_ratio: float = 0.60,
+    hero_fill_ratio: float = 0.75,
     vertical_offset_ratio: float = -0.08,
 ) -> Image.Image:
     """Place a product hero centered on a full-bleed background.
 
-    The product is scaled to dominate the frame (up to 70% of width, 60% of height)
-    and vertically centered with an upward offset so the text strip doesn't overlap.
+    The product is scaled so its largest dimension fills exactly
+    ``hero_fill_ratio`` of the corresponding image dimension (75% by default).
+    Vertically offset upward so the text strip at the bottom doesn't overlap.
     """
     tw, th = background.size
     background = background.convert("RGBA")
@@ -82,13 +82,14 @@ def composite_hero_over_background(
     if hw == 0 or hh == 0:
         return background
 
-    max_w = int(tw * hero_max_width_ratio)
-    max_h = int(th * hero_max_height_ratio)
-    scale = min(max_w / hw, max_h / hh)
+    # Scale so the dominant axis fills exactly hero_fill_ratio of the frame
+    scale = max((tw * hero_fill_ratio) / hw, (th * hero_fill_ratio) / hh)
+    # But don't exceed the frame
+    scale = min(scale, tw * 0.95 / hw, th * 0.85 / hh)
     nw, nh = max(1, int(hw * scale)), max(1, int(hh * scale))
     hero = hero.resize((nw, nh), Image.LANCZOS)
 
-    # Center horizontally, center vertically with slight upward offset
+    # Center horizontally, center vertically with upward offset
     x = (tw - nw) // 2
     y = (th - nh) // 2 + int(th * vertical_offset_ratio)
     y = max(0, min(y, th - nh))
