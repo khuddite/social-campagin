@@ -23,21 +23,27 @@ def _build_background_prompt(
     target_region: str,
 ) -> str:
     return (
-        "Full-bleed advertising background photograph. This image will be used as the "
-        "background for a product ad — the actual product will be composited on top later.\n\n"
+        "Premium product-advertisement background for a paid social campaign. "
+        "A product will be composited on top later — generate ONLY the background.\n\n"
+        "STYLE REFERENCE: Think Nike, Apple, or Gatorade hero-product ads — bold, minimal, dramatic. "
+        "NOT a landscape photo. NOT a room interior. This is a studio/abstract ad backdrop.\n\n"
         f"Scene: {plan.scene_description}\n"
         f"Mood: {plan.mood}\n"
         f"Color & lighting: {plan.color_direction}\n\n"
-        f"Brand palette hints (use as subtle accents): {', '.join(brand_colors)}\n"
-        f"Brand: {brand_name}. Guidelines: {brand_guidelines}\n"
+        "COMPOSITION (critical):\n"
+        "- Bottom third: a clean, flat, horizontal surface (stone, concrete, metal, glass, fabric) "
+        "where the product will appear to rest. Must be visible and uncluttered.\n"
+        "- Upper two-thirds: atmospheric backdrop — bold color gradients, volumetric light, "
+        "subtle bokeh, light streaks, colored gel lighting, or soft haze. Keep it SIMPLE.\n"
+        "- Strong contrast between the surface and background to create depth.\n\n"
+        f"Brand palette (weave subtly into lighting/color): {', '.join(brand_colors)}\n"
         f"Market: {target_region}\n\n"
-        "Requirements:\n"
-        "- Leave clear space in the lower-center area for a product to be placed on top\n"
-        "- Photorealistic, premium quality, suitable for paid social advertising\n"
-        "- Shallow depth of field, natural lighting, no CGI or synthetic look\n"
-        "- NO text, letters, numbers, logos, watermarks, UI elements, or people\n"
-        "- NO product or packaging — just the environment/surface/background\n"
-        "- The bottom-center should have a flat surface, table, or ground where a product could naturally sit"
+        "ABSOLUTE RULES:\n"
+        "- ZERO text, letters, numbers, logos, watermarks, labels, UI of any kind\n"
+        "- ZERO products, bottles, containers, packaging, or branded objects\n"
+        "- ZERO people, hands, faces, silhouettes\n"
+        "- ZERO clutter — no gym equipment, no furniture, no props, no gadgets\n"
+        "- The image should be MINIMAL: a surface + atmosphere + dramatic lighting. That's it."
     )
 
 
