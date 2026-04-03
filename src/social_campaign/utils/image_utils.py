@@ -13,11 +13,11 @@ ASPECT_SIZES: dict[str, tuple[int, int]] = {
     "16:9": (1920, 1080),
 }
 
-# Font paths — headline uses a bold display font, body uses an elegant sans-serif
+# Font paths — headline uses a playful cinematic font, body uses an elegant sans-serif
 _FONTS_DIR = Path(__file__).parent.parent.parent.parent / "fonts"
-_HEADLINE_FONT_PATH = _FONTS_DIR / "BebasNeue-Regular.ttf"
+_HEADLINE_FONT_PATH = _FONTS_DIR / "PermanentMarker-Regular.ttf"
 _BODY_FONT_PATH = _FONTS_DIR / "Raleway-Medium.ttf"
-_FALLBACK_FONT_PATH = _FONTS_DIR / "Inter-Bold.ttf"
+_FALLBACK_FONT_PATH = _FONTS_DIR / "Righteous-Regular.ttf"
 
 
 def _load_font(size: int, role: str = "headline") -> ImageFont.FreeTypeFont | ImageFont.ImageFont:
@@ -141,11 +141,12 @@ def overlay_text_behind(
     headline: str,
     body: str,
 ) -> Image.Image:
-    """Overlay a large headline in the lower-center that the product will intersect.
+    """Overlay headline + body in the lower portion with a frosted backing.
 
-    This is drawn BEFORE the product is composited, so the product appears
-    in front of the text for an editorial, eye-catching look.
-    The headline is big and bold; the body sits below it in a smaller font.
+    Drawn BEFORE the product is composited so the product overlaps the top
+    edge of the text area, creating an editorial intersecting layout.
+    A semi-transparent dark panel behind the text ensures readability
+    regardless of the background image.
     """
     img = img.convert("RGBA")
     w, h = img.size
@@ -153,9 +154,9 @@ def overlay_text_behind(
     overlay = Image.new("RGBA", (w, h), (0, 0, 0, 0))
     draw = ImageDraw.Draw(overlay)
 
-    # Large headline — sized to be impactful and overlap with the product area
-    headline_size = max(int(h * 0.07), 28)
-    body_size = max(int(headline_size * 0.35), 12)
+    # Playful headline + clean body
+    headline_size = max(int(h * 0.065), 26)
+    body_size = max(int(headline_size * 0.38), 12)
     headline_font = _load_font(headline_size, role="headline")
     body_font = _load_font(body_size, role="body")
 
@@ -171,25 +172,32 @@ def overlay_text_behind(
     headline_h = headline_bbox[3] - headline_bbox[1]
     body_h = body_bbox[3] - body_bbox[1]
 
-    # Position headline in the lower third — product will overlap it from above
-    headline_y = int(h * 0.68)
-    body_y = headline_y + headline_h + int(padding * 0.4)
+    gap = int(padding * 0.4)
+    total_text_h = headline_h + gap + body_h
 
-    # Draw headline with a subtle shadow for depth
-    for dx, dy in [(2, 2), (-1, -1)]:
-        draw.multiline_text(
-            (padding + dx, headline_y + dy), headline,
-            fill=(0, 0, 0, 100), font=headline_font,
-        )
-    draw.multiline_text(
-        (padding, headline_y), headline,
-        fill=(255, 255, 255, 240), font=headline_font,
+    # Position text block in the lower portion — product will overlap the top
+    text_top = int(h * 0.67)
+    panel_top = text_top - int(padding * 0.8)
+    panel_bottom = min(h, text_top + total_text_h + int(padding * 1.2))
+
+    # Frosted dark panel behind text for readability
+    draw.rectangle(
+        [(0, panel_top), (w, panel_bottom)],
+        fill=(0, 0, 0, 160),
     )
 
-    # Body text below with slight transparency
+    # Headline
+    headline_y = text_top
+    draw.multiline_text(
+        (padding, headline_y), headline,
+        fill=(255, 255, 255, 255), font=headline_font,
+    )
+
+    # Body text
+    body_y = headline_y + headline_h + gap
     draw.multiline_text(
         (padding, body_y), body,
-        fill=(255, 255, 255, 190), font=body_font,
+        fill=(255, 255, 255, 200), font=body_font,
     )
 
     result = Image.alpha_composite(img, overlay)
