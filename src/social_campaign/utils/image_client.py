@@ -41,7 +41,7 @@ def generate_transparent_image(prompt: str) -> Image.Image:
     """Generate a 1024x1024 RGBA image with transparent background using gpt-image-1."""
     client = _get_client()
     response = client.images.generate(
-        model="gpt-image-1",
+        model="gpt-image-1.5",
         prompt=prompt,
         size="1024x1024",
         quality="high",

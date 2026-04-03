@@ -48,5 +48,5 @@ def test_generate_transparent_image_returns_rgba(mock_get_client):
     assert isinstance(result, Image.Image)
     assert result.size == (1024, 1024)
     assert result.mode == "RGBA"
-    assert mock_client.images.generate.call_args.kwargs["model"] == "gpt-image-1"
+    assert mock_client.images.generate.call_args.kwargs["model"] == "gpt-image-1.5"
     assert mock_client.images.generate.call_args.kwargs["background"] == "transparent"
