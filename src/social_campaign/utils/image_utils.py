@@ -183,15 +183,15 @@ def overlay_text_behind(
     overlay = Image.new("RGBA", (w, h), (0, 0, 0, 0))
     draw = ImageDraw.Draw(overlay)
 
-    # Playful headline + clean body
-    headline_size = max(int(h * 0.065), 26)
-    body_size = max(int(headline_size * 0.38), 12)
+    # Smaller, tighter text
+    headline_size = max(int(h * 0.048), 22)
+    body_size = max(int(headline_size * 0.35), 11)
     headline_font = _load_font(headline_size, role="headline")
     body_font = _load_font(body_size, role="body")
 
     headline = headline.upper()
 
-    padding = int(w * 0.05)
+    padding = int(w * 0.04)
     text_max_width = w - padding * 2
     headline = _wrap_text(draw, headline, headline_font, text_max_width)
     body = _wrap_text(draw, body, body_font, text_max_width)
@@ -201,13 +201,16 @@ def overlay_text_behind(
     headline_h = headline_bbox[3] - headline_bbox[1]
     body_h = body_bbox[3] - body_bbox[1]
 
-    gap = int(padding * 1.0)
+    gap = int(padding * 0.6)
     total_text_h = headline_h + gap + body_h
+    panel_pad = int(padding * 0.7)
+    total_block_h = total_text_h + panel_pad * 2
 
-    # Position text block in the lower portion — product will overlap the top
-    text_top = int(h * 0.67)
-    panel_top = text_top - int(padding * 0.8)
-    panel_bottom = min(h, text_top + total_text_h + int(padding * 1.2))
+    # Position: anchor the bottom of the text block to the bottom of the image
+    margin_bottom = int(h * 0.02)
+    panel_bottom = h - margin_bottom
+    panel_top = panel_bottom - total_block_h
+    text_top = panel_top + panel_pad
 
     # Frosted dark panel behind text for readability
     draw.rectangle(
