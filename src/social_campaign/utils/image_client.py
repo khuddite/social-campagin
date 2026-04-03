@@ -7,7 +7,7 @@ import os
 from huggingface_hub import InferenceClient
 from PIL import Image
 
-MODEL = "black-forest-labs/FLUX.1-dev"
+MODEL = "black-forest-labs/FLUX.1-schnell"
 
 
 def generate_image(prompt: str, aspect_ratio: str = "1:1") -> Image.Image:
