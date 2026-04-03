@@ -13,15 +13,22 @@ ASPECT_SIZES: dict[str, tuple[int, int]] = {
     "16:9": (1920, 1080),
 }
 
-# Try to load bundled font, fall back to default
-_FONT_PATH = Path(__file__).parent.parent.parent.parent / "fonts" / "Inter-Bold.ttf"
+# Font paths — headline uses a bold display font, body uses an elegant sans-serif
+_FONTS_DIR = Path(__file__).parent.parent.parent.parent / "fonts"
+_HEADLINE_FONT_PATH = _FONTS_DIR / "BebasNeue-Regular.ttf"
+_BODY_FONT_PATH = _FONTS_DIR / "Raleway-Medium.ttf"
+_FALLBACK_FONT_PATH = _FONTS_DIR / "Inter-Bold.ttf"
 
 
-def _load_font(size: int) -> ImageFont.FreeTypeFont | ImageFont.ImageFont:
-    try:
-        return ImageFont.truetype(str(_FONT_PATH), size)
-    except OSError:
-        return ImageFont.load_default(size)
+def _load_font(size: int, role: str = "headline") -> ImageFont.FreeTypeFont | ImageFont.ImageFont:
+    """Load a font by role: 'headline' for display font, 'body' for body font."""
+    primary = _HEADLINE_FONT_PATH if role == "headline" else _BODY_FONT_PATH
+    for path in [primary, _FALLBACK_FONT_PATH]:
+        try:
+            return ImageFont.truetype(str(path), size)
+        except OSError:
+            continue
+    return ImageFont.load_default(size)
 
 
 def prepare_hero_edit_canvas(
@@ -143,10 +150,13 @@ def overlay_text(
     overlay = Image.new("RGBA", (w, h), (0, 0, 0, 0))
     draw = ImageDraw.Draw(overlay)
 
-    headline_size = max(int(h * max_font_ratio * 0.75), 18)
-    body_size = max(int(headline_size * 0.55), 12)
-    headline_font = _load_font(headline_size)
-    body_font = _load_font(body_size)
+    headline_size = max(int(h * max_font_ratio * 0.85), 20)
+    body_size = max(int(headline_size * 0.45), 12)
+    headline_font = _load_font(headline_size, role="headline")
+    body_font = _load_font(body_size, role="body")
+
+    # Bebas Neue is an all-caps display font — force uppercase for impact
+    headline = headline.upper()
 
     padding = int(w * 0.04)
     margin_bottom = int(h * 0.02)
