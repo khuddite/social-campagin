@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 # Target sizes for each aspect ratio
 ASPECT_SIZES: dict[str, tuple[int, int]] = {
@@ -258,16 +258,25 @@ def overlay_logo(
     x = w - logo_w - pad
     y = pad
 
-    # Create a dark shadow version of the logo for contrast/glow effect.
-    # This makes the logo readable on any background without a clunky rectangle.
+    # Soft dark glow behind logo for visibility on any background.
+    # Paint the logo silhouette in black, then Gaussian-blur it for a smooth halo.
+    glow_expand = max(4, int(logo_w * 0.03))
+    glow_canvas = Image.new("RGBA", (w, h), (0, 0, 0, 0))
     shadow = Image.new("RGBA", logo.size, (0, 0, 0, 0))
-    logo_alpha = logo.split()[3]
-    shadow.putalpha(logo_alpha)
-    # Draw shadow slightly offset in multiple directions for a glow
-    overlay = Image.new("RGBA", (w, h), (0, 0, 0, 0))
-    for dx, dy in [(-2, -2), (2, -2), (-2, 2), (2, 2), (0, 3), (3, 0), (-3, 0), (0, -3)]:
-        overlay.paste(shadow, (x + dx, y + dy), shadow)
+    shadow_pixels = shadow.load()
+    logo_pixels = logo.load()
+    for sy in range(logo.height):
+        for sx in range(logo.width):
+            a = logo_pixels[sx, sy][3]
+            if a > 30:
+                shadow_pixels[sx, sy] = (0, 0, 0, min(200, a))
+    glow_canvas.paste(shadow, (x, y), shadow)
+    # Blur for a soft halo
+    glow_alpha = glow_canvas.split()[3]
+    glow_alpha = glow_alpha.filter(ImageFilter.GaussianBlur(radius=glow_expand))
+    glow_result = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+    glow_result.putalpha(glow_alpha)
+    img = Image.alpha_composite(img, glow_result)
 
-    img = Image.alpha_composite(img, overlay)
     img.paste(logo, (x, y), logo)
     return img.convert("RGB")
