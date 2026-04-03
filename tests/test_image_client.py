@@ -26,7 +26,7 @@ def test_generate_image_returns_rgb(mock_get_client):
     assert isinstance(result, Image.Image)
     assert result.size == (1024, 1024)
     assert result.mode == "RGB"
-    assert mock_client.images.generate.call_args.kwargs["model"] == "dall-e-3"
+    assert mock_client.images.generate.call_args.kwargs["model"] == "gpt-image-1.5"
 
 
 def _fake_rgba_b64() -> str:

@@ -1,4 +1,4 @@
-"""Image generation via OpenAI: DALL-E 3 for backgrounds, gpt-image-1 for transparent product cutouts."""
+"""Image generation via OpenAI gpt-image-1.5."""
 
 from __future__ import annotations
 
@@ -8,6 +8,8 @@ import os
 
 from openai import OpenAI
 from PIL import Image
+
+MODEL = "gpt-image-1.5"
 
 _client: OpenAI | None = None
 
@@ -20,28 +22,29 @@ def _get_client() -> OpenAI:
 
 
 def generate_image(prompt: str) -> Image.Image:
-    """Generate a 1024x1024 image using DALL-E 3 (opaque RGB)."""
+    """Generate a 1024x1024 opaque image (for backgrounds)."""
     client = _get_client()
     response = client.images.generate(
-        model="dall-e-3",
+        model=MODEL,
         prompt=prompt,
         size="1024x1024",
-        quality="standard",
+        quality="high",
         n=1,
-        response_format="b64_json",
+        background="opaque",
+        output_format="png",
     )
     b64 = response.data[0].b64_json
     if not b64:
-        raise RuntimeError("DALL-E 3 returned no image data.")
+        raise RuntimeError(f"{MODEL} returned no image data.")
     raw = base64.b64decode(b64)
     return Image.open(io.BytesIO(raw)).convert("RGB")
 
 
 def generate_transparent_image(prompt: str) -> Image.Image:
-    """Generate a 1024x1024 RGBA image with transparent background using gpt-image-1."""
+    """Generate a 1024x1024 RGBA image with transparent background (for product cutouts)."""
     client = _get_client()
     response = client.images.generate(
-        model="gpt-image-1.5",
+        model=MODEL,
         prompt=prompt,
         size="1024x1024",
         quality="high",
@@ -51,6 +54,6 @@ def generate_transparent_image(prompt: str) -> Image.Image:
     )
     b64 = response.data[0].b64_json
     if not b64:
-        raise RuntimeError("gpt-image-1 returned no image data.")
+        raise RuntimeError(f"{MODEL} returned no image data.")
     raw = base64.b64decode(b64)
     return Image.open(io.BytesIO(raw)).convert("RGBA")

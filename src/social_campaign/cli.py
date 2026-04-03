@@ -71,8 +71,8 @@ def generate(brief: str, output: str):
         "write_copy": "Writing ad copy with GPT-4o",
         "localize_copy": "Localizing & culturally adapting copy",
         "plan_backgrounds": "Art-directing background scenes with GPT-4o",
-        "generate_images": "Generating hero product images with DALL-E 3",
-        "generate_backgrounds": "Generating background scenes with DALL-E 3",
+        "generate_images": "Generating hero product images with GPT Image",
+        "generate_backgrounds": "Generating background scenes with GPT Image",
         "composite_assets": "Compositing final ads (hero + background + text + logo)",
         "generate_report": "Building HTML campaign report",
     }
