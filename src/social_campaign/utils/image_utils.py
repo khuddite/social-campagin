@@ -58,10 +58,16 @@ def composite_hero_over_background(
     background: Image.Image,
     hero: Image.Image,
     *,
-    hero_width_ratio: float = 0.78,
-    bottom_margin_ratio: float = 0.06,
+    hero_max_width_ratio: float = 0.55,
+    hero_max_height_ratio: float = 0.50,
+    vertical_offset_ratio: float = -0.05,
 ) -> Image.Image:
-    """Place a product hero (e.g. transparent PNG cutout) on a full-bleed background, bottom-centered."""
+    """Place a product hero centered on a full-bleed background.
+
+    The product is scaled to be prominent (up to 55% of width, 50% of height)
+    and vertically centered with a slight upward offset so the text strip
+    at the bottom doesn't overlap it.
+    """
     tw, th = background.size
     background = background.convert("RGBA")
     hero = hero.convert("RGBA")
@@ -70,14 +76,15 @@ def composite_hero_over_background(
     if hw == 0 or hh == 0:
         return background
 
-    max_w = int(tw * hero_width_ratio)
-    max_h = int(th * 0.88)
+    max_w = int(tw * hero_max_width_ratio)
+    max_h = int(th * hero_max_height_ratio)
     scale = min(max_w / hw, max_h / hh)
     nw, nh = max(1, int(hw * scale)), max(1, int(hh * scale))
     hero = hero.resize((nw, nh), Image.LANCZOS)
 
+    # Center horizontally, center vertically with slight upward offset
     x = (tw - nw) // 2
-    y = th - nh - int(th * bottom_margin_ratio)
+    y = (th - nh) // 2 + int(th * vertical_offset_ratio)
     y = max(0, min(y, th - nh))
 
     layer = Image.new("RGBA", (tw, th), (0, 0, 0, 0))
@@ -136,13 +143,13 @@ def overlay_text(
     overlay = Image.new("RGBA", (w, h), (0, 0, 0, 0))
     draw = ImageDraw.Draw(overlay)
 
-    headline_size = max(int(h * max_font_ratio), 20)
-    body_size = max(int(headline_size * 0.6), 14)
+    headline_size = max(int(h * max_font_ratio * 0.75), 18)
+    body_size = max(int(headline_size * 0.55), 12)
     headline_font = _load_font(headline_size)
     body_font = _load_font(body_size)
 
-    padding = int(w * 0.05)
-    margin_bottom = int(h * 0.08)
+    padding = int(w * 0.04)
+    margin_bottom = int(h * 0.02)
 
     # Wrap text to fit within image
     text_max_width = w - padding * 2
