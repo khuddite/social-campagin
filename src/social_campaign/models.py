@@ -65,14 +65,6 @@ class LocalizedCopy(BaseModel):
     body: str
 
 
-class CheckResult(BaseModel):
-    """Result from brand or legal check."""
-
-    passed: bool
-    details: str
-    flags: list[str] = Field(default_factory=list)
-
-
 class CampaignState(TypedDict, total=False):
     """Shared state flowing through the LangGraph pipeline."""
 
@@ -81,6 +73,5 @@ class CampaignState(TypedDict, total=False):
     localized_copy: dict[str, LocalizedCopy]
     generated_images: dict[str, str]
     composited_assets: dict[str, dict[str, str]]
-    brand_check_results: dict[str, CheckResult]
-    legal_check_results: dict[str, CheckResult]
     output_dir: str
+    report_path: str

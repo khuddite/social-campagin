@@ -47,8 +47,6 @@ def _make_state(tmp_path: Path) -> CampaignState:
         localized_copy={},
         generated_images={},
         composited_assets={},
-        brand_check_results={},
-        legal_check_results={},
         output_dir=str(tmp_path / "output"),
     )
 

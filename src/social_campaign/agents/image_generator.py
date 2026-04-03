@@ -5,7 +5,23 @@ from __future__ import annotations
 from pathlib import Path
 
 from social_campaign.models import CampaignState
-from social_campaign.utils.hf_client import generate_image
+from social_campaign.utils.openai_image_client import generate_image
+
+
+def _build_hero_prompt(product_name: str, description: str, brand_name: str, region: str) -> str:
+    """Prompt tuned to minimise illegible / hallucinated text on packaging (image model weakness)."""
+    return (
+        f"Professional advertising product photograph, square composition, studio lighting, "
+        f"shallow depth of field, photorealistic.\n\n"
+        f"Subject: {product_name}. Context: {description}. "
+        f"Inspired by brand mood for {brand_name}, market {region}.\n\n"
+        f"CRITICAL — no typography in the scene: do not render any letters, words, numbers, "
+        f"logos, nutrition labels, ingredient lists, barcodes, URLs, or packaging mockups with text. "
+        f"Show the product as a plain unlabeled bottle, tub, or vessel with a blank matte surface, "
+        f"OR show only ingredients, ice, fruit, liquid, or equipment with no branded packaging. "
+        f"No fake product names, no gibberish text, no watermarks, no subtitles, no signs.\n\n"
+        f"High-end commercial look, vibrant but natural colours."
+    )
 
 
 def generate_images(state: CampaignState) -> dict:
@@ -22,14 +38,12 @@ def generate_images(state: CampaignState) -> dict:
             images[slug] = product.hero_image
             continue
 
-        # Generate new image
-        prompt = (
-            f"Professional product photography for a social media ad. "
-            f"Product: {product.name} — {product.description}. "
-            f"Style: modern, clean, vibrant. "
-            f"Brand: {brief.brand.name}. "
-            f"Target market: {brief.target_region}. "
-            f"No text in the image."
+        # Generate new image (text-free hero — real ad copy is composited later in Pillow).
+        prompt = _build_hero_prompt(
+            product.name,
+            product.description,
+            brief.brand.name,
+            brief.target_region,
         )
 
         img = generate_image(prompt)

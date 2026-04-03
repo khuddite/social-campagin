@@ -1,28 +1,28 @@
 {
-  "campaign_name": "Summer Refresh 2025",
+  "campaign_name": "Own Your Game 2025",
   "brand": {
     "name": "FreshCo",
     "colors": ["#00A86B", "#FFFFFF", "#1B1B1B"],
     "logo_path": "assets/logo.png",
-    "guidelines": "Tone: upbeat, youthful, energetic. Use vibrant colors. Never use words: 'cheap', 'budget', 'discount'. Always emphasize quality and freshness."
+    "guidelines": "Tone: confident, motivating, athletic. Use bold, high-energy visuals. Never use words: 'cheap', 'budget', 'discount'. Emphasise performance, recovery, and dedication — never mock effort or ability."
   },
   "products": [
     {
-      "name": "Citrus Burst Sparkling Water",
-      "description": "Zero-calorie sparkling water with natural citrus flavors, perfect for staying refreshed on hot summer days",
-      "hero_image": "assets/citrus-burst.png",
-      "key_features": ["zero calories", "natural citrus flavors", "refreshing", "no artificial sweeteners"]
+      "name": "ProFlow 750 Insulated Bottle",
+      "description": "Double-wall stainless bottle that keeps drinks cold for 24 hours — built for training sessions, match days, and long rides",
+      "hero_image": null,
+      "key_features": ["leak-proof cap", "BPA-free", "fits standard bike cages", "easy-grip finish"]
     },
     {
-      "name": "Berry Bliss Smoothie",
-      "description": "Ready-to-drink mixed berry smoothie made with real fruit, ideal for health-conscious consumers on the go",
+      "name": "ChargeUp Electrolyte Mix — Citrus",
+      "description": "Low-sugar hydration powder with sodium, potassium, and magnesium — mix with water for fast replenishment after sweat-heavy workouts",
       "hero_image": null,
-      "key_features": ["real fruit", "no added sugar", "rich in antioxidants", "on-the-go convenience"]
+      "key_features": ["no artificial colours", "light citrus taste", "20 servings per tub", "Informed Sport certified"]
     }
   ],
-  "target_region": "Brazil",
-  "target_language": "pt-BR",
-  "target_audience": "Health-conscious millennials and Gen Z, ages 22-35, urban professionals who value wellness and sustainability",
-  "campaign_message": "Beat the heat with nature's best flavors",
+  "target_region": "United Kingdom",
+  "target_language": "en-GB",
+  "target_audience": "Amateur and club athletes, gym-goers, and weekend runners, ages 18–45, who train regularly and care about recovery and hydration",
+  "campaign_message": "Train hard. Recover smart. Stay in the game.",
   "aspect_ratios": ["1:1", "9:16", "16:9"]
 }

@@ -39,10 +39,6 @@ def generate_report(state: CampaignState) -> dict:
                 thumbnails[slug][ratio_key] = _make_thumbnail(path)
 
     total_assets = sum(len(a) for a in composited.values())
-    brand_results = state.get("brand_check_results", {})
-    legal_results = state.get("legal_check_results", {})
-    brand_pass_count = sum(1 for r in brand_results.values() if r.passed)
-    legal_flags_count = sum(len(r.flags) for r in legal_results.values())
 
     env = Environment(
         loader=FileSystemLoader(str(_TEMPLATE_DIR)),
@@ -55,16 +51,13 @@ def generate_report(state: CampaignState) -> dict:
         copy_variants=state.get("copy_variants", {}),
         localized_copy=state.get("localized_copy", {}),
         composited_assets=composited,
-        brand_check_results=brand_results,
-        legal_check_results=legal_results,
         thumbnails=thumbnails,
         total_assets=total_assets,
-        brand_pass_count=brand_pass_count,
-        legal_flags_count=legal_flags_count,
     )
 
     report_path = output_dir / "campaign-report.html"
     report_path.parent.mkdir(parents=True, exist_ok=True)
     report_path.write_text(html)
 
-    return {}
+    # Non-empty dict so LangGraph stream does not emit None for this node (empty {} → None in updates).
+    return {"report_path": str(report_path)}

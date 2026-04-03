@@ -40,8 +40,6 @@ def generate(brief: str, output: str):
     missing = []
     if not os.environ.get("OPENAI_API_KEY"):
         missing.append("OPENAI_API_KEY")
-    if not os.environ.get("HF_API_TOKEN"):
-        missing.append("HF_API_TOKEN")
 
     if missing:
         console.print(
@@ -75,8 +73,6 @@ def generate(brief: str, output: str):
         "localize_copy": "Localizing copy",
         "generate_images": "Generating images",
         "composite_assets": "Compositing assets",
-        "check_brand": "Checking brand compliance",
-        "check_legal": "Checking legal compliance",
         "generate_report": "Generating report",
     }
 
@@ -88,25 +84,10 @@ def generate(brief: str, output: str):
         for node_name, node_result in event.items():
             label = node_labels.get(node_name, node_name)
             console.print(f"  [green]✓[/green] {label}")
-            result.update(node_result)
+            if node_result is not None:
+                result.update(node_result)
 
     console.print()
-    brief_data = result.get("brief")
-    if brief_data:
-        for product in brief_data.products:
-            slug = product.slug
-            brand_result = result.get("brand_check_results", {}).get(slug)
-            legal_result = result.get("legal_check_results", {}).get(slug)
-
-            brand_str = "[green]PASS[/green]" if brand_result and brand_result.passed else "[red]FAIL[/red]"
-            legal_str = "[green]PASS[/green]" if legal_result and legal_result.passed else "[yellow]FLAGS[/yellow]"
-
-            console.print(f"  [bold]{product.name}[/bold] — Brand: {brand_str} | Legal: {legal_str}")
-
-            if legal_result and legal_result.flags:
-                for flag in legal_result.flags:
-                    console.print(f"    [yellow]⚠ {flag}[/yellow]")
-
     console.print(f"\n[green]✓ Output saved to {output_dir}[/green]")
     report_path = output_dir / "campaign-report.html"
     if report_path.exists():

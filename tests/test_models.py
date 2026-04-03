@@ -3,7 +3,6 @@ from social_campaign.models import (
     BrandConfig,
     CampaignBrief,
     CopyVariant,
-    CheckResult,
     ProductConfig,
 )
 
@@ -71,14 +70,3 @@ def test_product_slug():
 def test_copy_variant():
     cv = CopyVariant(headline="Fresh & Cool", body="Stay refreshed all summer.")
     assert cv.headline == "Fresh & Cool"
-
-
-def test_check_result_pass():
-    cr = CheckResult(passed=True, details="All checks passed.")
-    assert cr.passed is True
-
-
-def test_check_result_fail_with_flags():
-    cr = CheckResult(passed=False, details="Issue found", flags=["unsubstantiated claim"])
-    assert cr.passed is False
-    assert len(cr.flags) == 1

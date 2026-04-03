@@ -42,8 +42,6 @@ def test_composite_creates_all_ratio_files(tmp_path: Path):
         },
         generated_images={"product-a": str(hero_path)},
         composited_assets={},
-        brand_check_results={},
-        legal_check_results={},
         output_dir=str(output_dir),
     )
 

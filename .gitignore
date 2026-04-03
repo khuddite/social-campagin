@@ -6,3 +6,9 @@ output/
 dist/
 *.egg-info/
 .superpowers/
+
+# macOS
+.DS_Store
+
+# Local planning / agent workflow notes (not part of the app)
+docs/superpowers/

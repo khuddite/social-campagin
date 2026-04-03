@@ -7,7 +7,6 @@ from social_campaign.models import (
     BrandConfig,
     CampaignBrief,
     CampaignState,
-    CheckResult,
     CopyVariant,
     LocalizedCopy,
     ProductConfig,
@@ -32,8 +31,6 @@ def test_generate_report_creates_html(tmp_path: Path):
         localized_copy={"product-a": LocalizedCopy(language="en", headline="Go!", body="Try it.")},
         generated_images={"product-a": str(img_path)},
         composited_assets={"product-a": {"1_1": str(img_path)}},
-        brand_check_results={"product-a": CheckResult(passed=True, details="OK")},
-        legal_check_results={"product-a": CheckResult(passed=False, details="Issue", flags=["flag1"])},
         output_dir=str(tmp_path / "output"),
     )
 
@@ -44,4 +41,4 @@ def test_generate_report_creates_html(tmp_path: Path):
     html = report_path.read_text()
     assert "Test Campaign" in html
     assert "Product A" in html
-    assert "flag1" in html
+    assert "Go!" in html

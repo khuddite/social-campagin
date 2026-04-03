@@ -1,6 +1,6 @@
 # Social Campaign Agent
 
-A multi-agent creative automation pipeline that generates localized social ad campaign assets from a JSON brief. Built with LangGraph, GPT-4o, and FLUX.1.
+A multi-agent creative automation pipeline that generates localized social ad campaign assets from a JSON brief. Built with LangGraph, GPT-4o, and DALL·E 3.
 
 ## What It Does
 
@@ -9,16 +9,14 @@ Given a campaign brief (JSON), the pipeline:
 1. **Parses** the brief and resolves existing assets
 2. **Writes** ad copy for each product (GPT-4o)
 3. **Localizes** copy with cultural adaptation for the target market (GPT-4o)
-4. **Generates** hero images for products missing assets (FLUX.1-schnell via HuggingFace)
+4. **Generates** hero images for products missing assets (DALL·E 3 via OpenAI)
 5. **Composites** final campaign images in 3 aspect ratios (1:1, 9:16, 16:9) with text overlay and brand logo
-6. **Checks** brand compliance using vision AI (GPT-4o)
-7. **Checks** legal compliance of ad copy (GPT-4o)
-8. **Reports** results in a self-contained HTML report
+6. **Reports** results in a self-contained HTML report
 
 ## Architecture
 
 ```
-Brief Parser → Copy Writer → Localizer → Image Generator → Compositor → Brand Checker → Legal Checker → Reporter
+Brief Parser → Copy Writer → Localizer → Image Generator → Compositor → Reporter
 ```
 
 Each node is a specialized agent in a LangGraph StateGraph pipeline. State flows through as a typed dictionary.
@@ -29,8 +27,7 @@ Each node is a specialized agent in a LangGraph StateGraph pipeline. State flows
 
 - Python 3.12+
 - [uv](https://docs.astral.sh/uv/) package manager
-- OpenAI API key (GPT-4o)
-- HuggingFace API token (free — sign up at [huggingface.co](https://huggingface.co))
+- OpenAI API key (GPT-4o and DALL·E 3 images)
 
 ### Setup
 
@@ -44,7 +41,7 @@ uv sync
 
 # Configure environment
 cp .env.example .env
-# Edit .env with your API keys
+# Edit .env with your OpenAI API key
 ```
 
 ### Run
@@ -81,10 +78,10 @@ See `campaign_brief_example.json` for a complete example. The brief includes:
 ## Key Design Decisions
 
 - **LangGraph StateGraph** for multi-agent orchestration — typed state, clear data flow, easy to test
-- **FLUX.1-schnell** via HuggingFace free tier — best open-source image quality, no local GPU needed
+- **DALL·E 3** via OpenAI — one API key for LLM and image generation
 - **Pillow for text overlay** — deterministic rendering (vs. AI text which is unreliable)
-- **GPT-4o vision** for brand checking — analyzes final composited images for compliance
 - **Jinja2 reporter** (not LLM) — fast, reliable, zero API cost
+- **Text-free heroes** — prompts forbid on-image typography (models often hallucinate nonsense labels). Real headline/body are added in Pillow, not in the generated photo.
 
 ## Running Tests
 
@@ -95,7 +92,7 @@ uv run pytest -v
 ## Assumptions & Limitations
 
 - **PoC scope**: This is a proof-of-concept, not production software
-- **Rate limits**: HuggingFace free tier may have rate limits for image generation
+- **Rate limits / billing**: OpenAI usage limits and DALL·E pricing apply to image generation
 - **Font**: Uses Inter Bold font; falls back to Pillow default if not available
 - **Brand logo**: Expected as a PNG with transparency (RGBA)
-- **Image quality**: FLUX.1-schnell is optimized for speed; FLUX.1-dev produces higher quality but is slower
+- **Image quality**: DALL·E 3 uses `quality=standard` by default; switch to `hd` in `openai_image_client.py` for higher fidelity at higher cost

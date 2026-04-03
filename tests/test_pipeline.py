@@ -7,8 +7,6 @@ from PIL import Image
 from social_campaign.pipeline import build_pipeline
 
 
-@patch("social_campaign.agents.brand_checker.ChatOpenAI")
-@patch("social_campaign.agents.legal_checker.ChatOpenAI")
 @patch("social_campaign.agents.localizer.ChatOpenAI")
 @patch("social_campaign.agents.copy_writer.ChatOpenAI")
 @patch("social_campaign.agents.image_generator.generate_image")
@@ -16,8 +14,6 @@ def test_full_pipeline(
     mock_gen_image,
     mock_copy_chat,
     mock_local_chat,
-    mock_legal_chat,
-    mock_brand_chat,
     tmp_path: Path,
 ):
     mock_gen_image.return_value = Image.new("RGB", (1024, 1024), "green")
@@ -26,13 +22,6 @@ def test_full_pipeline(
         llm = MagicMock()
         llm.invoke.return_value = MagicMock(
             content='{"headline": "Test Head", "body": "Test body text."}'
-        )
-        mock_cls.return_value = llm
-
-    for mock_cls in [mock_brand_chat, mock_legal_chat]:
-        llm = MagicMock()
-        llm.invoke.return_value = MagicMock(
-            content='{"passed": true, "details": "All good.", "flags": []}'
         )
         mock_cls.return_value = llm
 

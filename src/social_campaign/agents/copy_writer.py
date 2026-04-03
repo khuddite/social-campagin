@@ -24,7 +24,7 @@ def write_copy(state: CampaignState) -> dict:
             f"Key features: {', '.join(product.key_features)}\n"
             f"Target audience: {brief.target_audience}\n"
             f"Target region: {brief.target_region}\n"
-            f"Campaign message: {brief.campaign_message}\n\n"
+            f"Campaign message: {brief.campaign_message}\n"
             f"Write a short, punchy ad copy with a headline (max 8 words) and body text (max 20 words). "
             f"The copy should resonate with the target audience and align with brand guidelines.\n\n"
             f'Respond ONLY with JSON: {{"headline": "...", "body": "..."}}'

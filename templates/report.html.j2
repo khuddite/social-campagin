@@ -13,8 +13,6 @@
   .stat { background: #1a1a2e; padding: 20px; border-radius: 10px; text-align: center; }
   .stat .value { font-size: 32px; font-weight: bold; color: #6ddb6d; }
   .stat .label { font-size: 12px; color: #888; text-transform: uppercase; margin-top: 4px; }
-  .stat.warn .value { color: #e8c040; }
-  .stat.fail .value { color: #ff6b6b; }
   .product { background: #1a1a2e; border-radius: 12px; padding: 24px; margin-bottom: 24px; }
   .product h2 { font-size: 20px; margin-bottom: 16px; }
   .copy-section { margin-bottom: 16px; }
@@ -22,11 +20,6 @@
   .copy-section .text { font-size: 14px; line-height: 1.5; }
   .assets { display: flex; gap: 12px; flex-wrap: wrap; margin: 16px 0; }
   .assets img { border-radius: 8px; max-height: 200px; border: 1px solid #333; }
-  .check { padding: 8px 12px; border-radius: 6px; font-size: 13px; display: inline-block; margin: 4px 4px 4px 0; }
-  .check.pass { background: #1a3d1a; color: #6ddb6d; }
-  .check.fail { background: #3d1a1a; color: #ff6b6b; }
-  .flags { margin-top: 8px; }
-  .flags li { color: #e8c040; font-size: 13px; margin-left: 16px; }
 </style>
 </head>
 <body>
@@ -42,14 +35,6 @@
   <div class="stat">
     <div class="value">{{ total_assets }}</div>
     <div class="label">Assets Generated</div>
-  </div>
-  <div class="stat{% if brand_pass_count < brief.products | length %} warn{% endif %}">
-    <div class="value">{{ brand_pass_count }}/{{ brief.products | length }}</div>
-    <div class="label">Brand Compliant</div>
-  </div>
-  <div class="stat{% if legal_flags_count > 0 %} warn{% endif %}">
-    <div class="value">{{ legal_flags_count }}</div>
-    <div class="label">Legal Flags</div>
   </div>
 </div>
 
@@ -77,26 +62,6 @@
       <div style="text-align:center;font-size:11px;color:#888;margin-top:4px;">{{ ratio_key }}</div>
     </div>
     {% endfor %}
-  </div>
-
-  <div>
-    {% if brand_check_results.get(slug) %}
-    <span class="check {{ 'pass' if brand_check_results[slug].passed else 'fail' }}">
-      {{ '✅' if brand_check_results[slug].passed else '❌' }} Brand: {{ brand_check_results[slug].details }}
-    </span>
-    {% endif %}
-    {% if legal_check_results.get(slug) %}
-    <span class="check {{ 'pass' if legal_check_results[slug].passed else 'fail' }}">
-      {{ '✅' if legal_check_results[slug].passed else '⚠️' }} Legal: {{ legal_check_results[slug].details }}
-    </span>
-    {% if legal_check_results[slug].flags %}
-    <ul class="flags">
-      {% for flag in legal_check_results[slug].flags %}
-      <li>{{ flag }}</li>
-      {% endfor %}
-    </ul>
-    {% endif %}
-    {% endif %}
   </div>
 </div>
 {% endfor %}
