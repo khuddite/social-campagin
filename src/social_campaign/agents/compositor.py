@@ -1,4 +1,4 @@
-"""Crop backgrounds, overlay text, composite hero ON TOP, then add logo."""
+"""Crop backgrounds, composite hero, overlay text on top, then add logo."""
 
 from __future__ import annotations
 
@@ -18,9 +18,9 @@ from social_campaign.utils.image_utils import (
 def composite_assets(state: CampaignState) -> dict:
     """Produce final campaign images for every product x aspect ratio.
 
-    Compositing order: background → text → product → logo.
-    Text is drawn BEFORE the product so the product overlaps the headline,
-    creating an editorial, eye-catching intersecting layout.
+    Compositing order: background → product → text → logo.
+    Text is drawn OVER the product so the headline overlaps the product,
+    creating an eye-catching intersecting layout.
     """
     brief = state["brief"]
     backgrounds = state["generated_backgrounds"]
@@ -44,16 +44,16 @@ def composite_assets(state: CampaignState) -> dict:
             # 1. Crop background to target aspect ratio
             cropped_bg = center_crop_to_ratio(bg, ratio)
 
-            # 2. Overlay text BEHIND product (headline in lower-center)
+            # 2. Composite hero product onto background
+            with_hero = composite_hero_over_background(cropped_bg, hero)
+
+            # 3. Overlay text ON TOP of product (text intersects product)
             with_text = overlay_text_behind(
-                cropped_bg, headline=copy.headline, body=copy.body,
+                with_hero, headline=copy.headline, body=copy.body,
             )
 
-            # 3. Composite hero product ON TOP of text (product intersects headline)
-            with_hero = composite_hero_over_background(with_text, hero)
-
             # 4. Add brand logo (top-right, always on top)
-            final = overlay_logo(with_hero, brief.brand.logo_path)
+            final = overlay_logo(with_text, brief.brand.logo_path)
 
             asset_dir = output_dir / slug / ratio_key
             asset_dir.mkdir(parents=True, exist_ok=True)
