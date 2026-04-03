@@ -239,7 +239,7 @@ def overlay_logo(
     max_ratio: float = 0.22,
     padding_ratio: float = 0.025,
 ) -> Image.Image:
-    """Place the brand logo in the top-right corner, sized prominently."""
+    """Place the brand logo in the top-right corner with a frosted backing."""
     img = img.convert("RGBA")
     w, h = img.size
 
@@ -257,6 +257,17 @@ def overlay_logo(
     pad = int(w * padding_ratio)
     x = w - logo_w - pad
     y = pad
+
+    # Frosted pill behind logo for guaranteed visibility
+    overlay = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+    draw = ImageDraw.Draw(overlay)
+    inset = int(pad * 0.6)
+    draw.rounded_rectangle(
+        [(x - inset, y - inset), (x + logo_w + inset, y + logo_h + inset)],
+        radius=int(inset * 1.5),
+        fill=(0, 0, 0, 120),
+    )
+    img = Image.alpha_composite(img, overlay)
 
     img.paste(logo, (x, y), logo)
     return img.convert("RGB")
