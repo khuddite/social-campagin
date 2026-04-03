@@ -65,15 +65,14 @@ def composite_hero_over_background(
     background: Image.Image,
     hero: Image.Image,
     *,
-    hero_max_width_ratio: float = 0.55,
-    hero_max_height_ratio: float = 0.50,
-    vertical_offset_ratio: float = -0.05,
+    hero_max_width_ratio: float = 0.70,
+    hero_max_height_ratio: float = 0.60,
+    vertical_offset_ratio: float = -0.08,
 ) -> Image.Image:
     """Place a product hero centered on a full-bleed background.
 
-    The product is scaled to be prominent (up to 55% of width, 50% of height)
-    and vertically centered with a slight upward offset so the text strip
-    at the bottom doesn't overlap it.
+    The product is scaled to dominate the frame (up to 70% of width, 60% of height)
+    and vertically centered with an upward offset so the text strip doesn't overlap.
     """
     tw, th = background.size
     background = background.convert("RGBA")
@@ -192,10 +191,10 @@ def overlay_text(
 def overlay_logo(
     img: Image.Image,
     logo_path: str,
-    max_ratio: float = 0.12,
-    padding: int = 20,
+    max_ratio: float = 0.22,
+    padding_ratio: float = 0.025,
 ) -> Image.Image:
-    """Place the brand logo in the top-right corner."""
+    """Place the brand logo in the top-right corner, sized prominently."""
     img = img.convert("RGBA")
     w, h = img.size
 
@@ -210,8 +209,9 @@ def overlay_logo(
     logo_h = int(logo_w / logo_aspect)
     logo = logo.resize((logo_w, logo_h), Image.LANCZOS)
 
-    x = w - logo_w - padding
-    y = padding
+    pad = int(w * padding_ratio)
+    x = w - logo_w - pad
+    y = pad
 
     img.paste(logo, (x, y), logo)
     return img.convert("RGB")
