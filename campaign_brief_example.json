@@ -1,5 +1,5 @@
 {
-  "campaign_name": "FreshCo Hardwood — NBA 2025",
+  "campaign_name": "FreshCo Matchday — England 2025",
   "brand": {
     "name": "FreshCo",
     "colors": ["#00A86B", "#FFFFFF", "#1B1B1B"],
@@ -20,9 +20,9 @@
       "key_features": ["no artificial colours", "light citrus taste", "20 servings per tub", "Informed Sport certified"]
     }
   ],
-  "target_region": "United States",
-  "target_language": "en-US",
-  "target_audience": "NBA players and rotation pros — ages roughly 21–36 — who grind through practice, shootarounds, 82-game seasons, back-to-backs, and coast-to-coast travel, and care about hydration, electrolytes, and recovery between games",
-  "campaign_message": "From practice to tip-off to the fourth quarter — hydrate smart, recover fast, stay ready for the next game.",
+  "target_region": "England",
+  "target_language": "en-GB",
+  "target_audience": "Professional and semi-professional footballers across the English pyramid — from the EFL and National League to ambitious academy pros — ages roughly 18–35, who train most days, play a congested fixture schedule, and prioritise hydration, electrolytes, and recovery between matches and travel",
+  "campaign_message": "From the training pitch to matchday — hydrate with purpose, recover with discipline. Built for the full ninety.",
   "aspect_ratios": ["1:1", "9:16", "16:9"]
 }
