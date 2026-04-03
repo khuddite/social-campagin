@@ -18,10 +18,26 @@ _FONTS_DIR = Path(__file__).parent.parent.parent.parent / "fonts"
 _HEADLINE_FONT_PATH = _FONTS_DIR / "PermanentMarker-Regular.ttf"
 _BODY_FONT_PATH = _FONTS_DIR / "Raleway-Medium.ttf"
 _FALLBACK_FONT_PATH = _FONTS_DIR / "Righteous-Regular.ttf"
+# CJK / universal fallback for non-Latin scripts (Japanese, Chinese, Korean, Arabic, etc.)
+_CJK_FONT_PATH = _FONTS_DIR / "HiraginoSans-W6.ttc"
 
 
-def _load_font(size: int, role: str = "headline") -> ImageFont.FreeTypeFont | ImageFont.ImageFont:
-    """Load a font by role: 'headline' for display font, 'body' for body font."""
+def _has_non_latin(text: str) -> bool:
+    """Return True if text contains characters outside the Basic Latin + Latin Extended range."""
+    for ch in text:
+        cp = ord(ch)
+        if cp > 0x024F and ch not in " \t\n\r.,!?;:'\"-—–…()[]{}":
+            return True
+    return False
+
+
+def _load_font(size: int, role: str = "headline", text: str = "") -> ImageFont.FreeTypeFont | ImageFont.ImageFont:
+    """Load a font by role, falling back to a CJK-capable font for non-Latin text."""
+    if text and _has_non_latin(text):
+        try:
+            return ImageFont.truetype(str(_CJK_FONT_PATH), size)
+        except OSError:
+            pass
     primary = _HEADLINE_FONT_PATH if role == "headline" else _BODY_FONT_PATH
     for path in [primary, _FALLBACK_FONT_PATH]:
         try:
@@ -186,10 +202,12 @@ def overlay_text_behind(
     # Smaller, tighter text
     headline_size = max(int(h * 0.048), 22)
     body_size = max(int(headline_size * 0.35), 11)
-    headline_font = _load_font(headline_size, role="headline")
-    body_font = _load_font(body_size, role="body")
+    headline_font = _load_font(headline_size, role="headline", text=headline)
+    body_font = _load_font(body_size, role="body", text=body)
 
-    headline = headline.upper()
+    # Only uppercase for Latin scripts — CJK scripts don't have case
+    if not _has_non_latin(headline):
+        headline = headline.upper()
 
     padding = int(w * 0.04)
     text_max_width = w - padding * 2

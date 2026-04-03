@@ -1,4 +1,4 @@
-"""Generate full-bleed background scenes with DALL-E 3 (one call per product)."""
+"""Generate background scenes with FLUX.1 (one call per product)."""
 
 from __future__ import annotations
 
@@ -21,40 +21,40 @@ def _build_background_prompt(
     brand_colors: list[str],
     brand_guidelines: str,
     target_region: str,
+    campaign_name: str,
+    campaign_message: str,
+    target_audience: str,
 ) -> str:
+    """Build a prompt driven by the planner's scene description and the brief context.
+
+    The planner already factored in audience, region, brand, and campaign theme
+    when crafting the BackgroundPlan. This prompt passes that through faithfully
+    instead of overriding it with hardcoded aesthetics.
+    """
     return (
-        "Photorealistic nature scene. An empty natural landscape close-up "
-        "with no objects, no items, no man-made things — ONLY nature.\n\n"
-        f"Scene: {plan.scene_description}\n"
+        f"Photorealistic advertising background photograph for a {target_region} market.\n\n"
+        f"Scene direction: {plan.scene_description}\n"
         f"Mood: {plan.mood}\n"
         f"Color & lighting: {plan.color_direction}\n\n"
-        "WHAT TO SHOW:\n"
-        "- Natural lighting: golden hour sun, dappled forest light through leaves, "
-        "soft overcast glow, warm sunrise, or misty morning light\n"
-        "- Organic textures: wet stone, moss, wood grain, leaves, water droplets, "
-        "earth, bark, condensation\n"
-        "- A natural flat surface in the lower portion "
-        "(flat stone slab, weathered wood, moss-covered rock, wet slate, leaf bed)\n"
-        "- Depth: soft bokeh from foliage, morning mist, "
-        "gentle rain, light filtering through canopy, water reflections\n"
-        "- The center area should be open empty space\n"
-        "- Editorial nature photography feel, pristine untouched environment\n\n"
-        f"COLOR: natural tones — deep forest greens, earthy browns, "
-        f"cool water blues, warm amber sunlight. "
-        f"Accent colors inspired by: {', '.join(brand_colors)}\n\n"
-        "THIS IMAGE MUST CONTAIN ONLY NATURAL ELEMENTS:\n"
-        "rocks, water, plants, moss, wood, leaves, sky, light, mist, earth.\n\n"
-        "DO NOT INCLUDE ANY OF THESE:\n"
-        "- Any object, item, thing, or artifact made by humans\n"
-        "- Any container, vessel, or receptacle of any kind\n"
+        f"Context: This is a background for a '{campaign_name}' campaign targeting "
+        f"{target_audience} in {target_region}. Campaign message: '{campaign_message}'. "
+        f"Brand: {brand_name}. Brand tone: {brand_guidelines}\n\n"
+        f"Color palette: use tones that harmonize with {', '.join(brand_colors)}.\n\n"
+        "COMPOSITION:\n"
+        "- The center of the image should be relatively open/clear\n"
+        "- Include a surface or ground plane in the lower portion\n"
+        "- Beautiful lighting and atmospheric depth (bokeh, mist, reflections)\n"
+        "- Premium quality suitable for paid social advertising\n\n"
+        "DO NOT INCLUDE:\n"
+        "- Any object, item, or artifact made by humans (no containers, no vessels, no drinkware)\n"
         "- Any text, letters, numbers, symbols, logos, or labels\n"
         "- Any person, hand, face, body part, or silhouette\n"
-        "- Any building, room, wall, floor, furniture, or structure"
+        "- Any building, room, wall, furniture, or indoor structure"
     )
 
 
 def generate_backgrounds(state: CampaignState) -> dict:
-    """Generate one DALL-E 3 background scene per product."""
+    """Generate one background scene per product."""
     brief = state["brief"]
     raw_plans = state["background_plans"]
     plans: dict[str, BackgroundPlan] = {
@@ -74,6 +74,9 @@ def generate_backgrounds(state: CampaignState) -> dict:
             brand_colors=brief.brand.colors,
             brand_guidelines=brief.brand.guidelines,
             target_region=brief.target_region,
+            campaign_name=brief.campaign_name,
+            campaign_message=brief.campaign_message,
+            target_audience=brief.target_audience,
         )
 
         img = generate_image(prompt, aspect_ratio="1:1")

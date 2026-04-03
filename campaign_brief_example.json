@@ -1,5 +1,5 @@
 {
-  "campaign_name": "Own Your Game 2025",
+  "campaign_name": "Everyday Fresh 2025",
   "brand": {
     "name": "FreshCo",
     "colors": ["#00A86B", "#FFFFFF", "#1B1B1B"],
@@ -20,9 +20,9 @@
       "key_features": ["no artificial colours", "light citrus taste", "20 servings per tub", "Informed Sport certified"]
     }
   ],
-  "target_region": "United Kingdom",
-  "target_language": "en-GB",
-  "target_audience": "Amateur and club athletes, gym-goers, and weekend runners, ages 18–45, who train regularly and care about recovery and hydration",
-  "campaign_message": "Train hard. Recover smart. Stay in the game.",
+  "target_region": "Japan",
+  "target_language": "ja",
+  "target_audience": "Urban professionals and parents in greater Tokyo and Osaka, ages 30–55, who care about daily hydration, work–life balance, and family wellness — not focused on competitive sport",
+  "campaign_message": "Small habits, every day. Stay fresh from morning commute to evening wind-down.",
   "aspect_ratios": ["1:1", "9:16", "16:9"]
 }
