@@ -5,13 +5,15 @@ from __future__ import annotations
 from langchain_openai import ChatOpenAI
 
 from social_campaign.models import CampaignState, CopyVariant
-from social_campaign.utils.llm_utils import LLM_MODEL, parse_llm_json
+from social_campaign.utils.llm_utils import LLM_MODEL
 
 
 def write_copy(state: CampaignState) -> dict:
     """Generate headline + body copy for every product in the brief."""
     brief = state["brief"]
-    llm = ChatOpenAI(model=LLM_MODEL, temperature=0.7)
+    llm = ChatOpenAI(model=LLM_MODEL, temperature=0.7).with_structured_output(
+        CopyVariant, method="function_calling"
+    )
 
     copy_variants: dict[str, CopyVariant] = {}
 
@@ -26,12 +28,9 @@ def write_copy(state: CampaignState) -> dict:
             f"Target region: {brief.target_region}\n"
             f"Campaign message: {brief.campaign_message}\n"
             f"Write a short, punchy ad copy with a headline (max 8 words) and body text (max 20 words). "
-            f"The copy should resonate with the target audience and align with brand guidelines.\n\n"
-            f'Respond ONLY with JSON: {{"headline": "...", "body": "..."}}'
+            f"The copy should resonate with the target audience and align with brand guidelines."
         )
 
-        response = llm.invoke(prompt)
-        data = parse_llm_json(response.content)
-        copy_variants[product.slug] = CopyVariant(**data)
+        copy_variants[product.slug] = llm.invoke(prompt)
 
     return {"copy_variants": copy_variants}

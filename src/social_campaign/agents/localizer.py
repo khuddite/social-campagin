@@ -5,14 +5,16 @@ from __future__ import annotations
 from langchain_openai import ChatOpenAI
 
 from social_campaign.models import CampaignState, LocalizedCopy
-from social_campaign.utils.llm_utils import LLM_MODEL, parse_llm_json
+from social_campaign.utils.llm_utils import LLM_MODEL
 
 
 def localize_copy(state: CampaignState) -> dict:
     """Translate and culturally adapt copy for each product."""
     brief = state["brief"]
     copy_variants = state["copy_variants"]
-    llm = ChatOpenAI(model=LLM_MODEL, temperature=0.4)
+    llm = ChatOpenAI(model=LLM_MODEL, temperature=0.4).with_structured_output(
+        LocalizedCopy, method="function_calling"
+    )
 
     localized: dict[str, LocalizedCopy] = {}
 
@@ -28,15 +30,9 @@ def localize_copy(state: CampaignState) -> dict:
             f"Original body: {original.body}\n\n"
             f"Don't just translate literally — adapt idioms, cultural references, "
             f"and tone to resonate with {brief.target_audience} in {brief.target_region}.\n\n"
-            f'Respond ONLY with JSON: {{"headline": "...", "body": "..."}}'
+            f"The language field must be: {brief.target_language}"
         )
 
-        response = llm.invoke(prompt)
-        data = parse_llm_json(response.content)
-        localized[slug] = LocalizedCopy(
-            language=brief.target_language,
-            headline=data["headline"],
-            body=data["body"],
-        )
+        localized[slug] = llm.invoke(prompt)
 
     return {"localized_copy": localized}

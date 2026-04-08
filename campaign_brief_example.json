@@ -2,9 +2,9 @@
   "campaign_name": "FreshCo Matchday — England 2025",
   "brand": {
     "name": "FreshCo",
-    "colors": ["#00A86B", "#FFFFFF", "#1B1B1B"],
+    "colors": ["#0B3D2E", "#C5FF00", "#F0EDE6", "#111827"],
     "logo_path": "assets/freshco.png",
-    "guidelines": "Tone: confident, motivating, athletic. Use bold, high-energy visuals. Never use words: 'cheap', 'budget', 'discount'. Emphasise performance, recovery, and dedication — never mock effort or ability."
+    "guidelines": "Tone: confident, restrained intensity — never loud or gimmicky. Visuals evoke the calm before the whistle: tunnel walks, floodlit warm-ups, mist rising off a freshly cut pitch at dusk. Primary palette is deep forest green with sharp neon-lime highlights; warm off-white and near-black anchor typography. Backgrounds should lean into cinematic sports atmospheres: rain-slicked surfaces, stadium tunnel light spill, dewy grass at golden hour, condensation and cool textures. Lighting must feel editorial — directional, moody, with intentional shadow play. Typography: geometric sans-serif, uppercase headlines, generous letter-spacing. Avoid all hydration clichés ('quench', 'refresh', 'splash'). No discount language. Celebrate quiet discipline — early pitch sessions, ice baths, match-day routines — never glorify pain. No competitor branding or stock-photo aesthetics."
   },
   "products": [
     {

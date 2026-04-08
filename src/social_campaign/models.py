@@ -68,6 +68,7 @@ class LocalizedCopy(BaseModel):
 class BackgroundPlan(BaseModel):
     """Creative direction for an AI-generated ad background (environment only, no product)."""
 
+    slug: str = Field(default="", description="Product slug this plan belongs to.")
     scene_description: str = Field(
         ...,
         description="Full-bleed environment or abstract space; must not include the product itself.",
@@ -76,6 +77,15 @@ class BackgroundPlan(BaseModel):
     color_direction: str = Field(
         ...,
         description="Palette and lighting cues that harmonize with brand colors.",
+    )
+
+
+class BackgroundPlansResponse(BaseModel):
+    """Structured output wrapper: one BackgroundPlan per product."""
+
+    plans: list[BackgroundPlan] = Field(
+        ...,
+        description="One entry per product slug.",
     )
 
 

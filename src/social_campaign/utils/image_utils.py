@@ -2,9 +2,12 @@
 
 from __future__ import annotations
 
+import logging
 from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
+
+logger = logging.getLogger(__name__)
 
 # Target sizes for each aspect ratio
 ASPECT_SIZES: dict[str, tuple[int, int]] = {
@@ -56,47 +59,37 @@ def composite_hero_over_background(
 ) -> Image.Image:
     """Place a product hero centered on a full-bleed background.
 
-    Scaling adapts to aspect ratio: tall frames (9:16) use the width as the
-    constraint so the product fills the horizontal space aggressively.
-    Square and wide frames use the larger dimension.
+    The hero is scaled so its largest side fits within *fill_ratio* of the
+    background's smaller dimension — simple, works for any aspect ratio.
     """
+    FILL_RATIO = 0.85
+
     tw, th = background.size
     background = background.convert("RGBA")
     hero = hero.convert("RGBA")
 
     hw, hh = hero.size
+    logger.debug(
+        "composite_hero: bg=%dx%d  hero=%dx%d  fill_ratio=%.2f",
+        tw, th, hw, hh, FILL_RATIO,
+    )
     if hw == 0 or hh == 0:
         return background
 
-    aspect = tw / th  # <1 = tall, 1 = square, >1 = wide
-
-    hero_aspect = hw / hh  # >1 = landscape hero, <1 = portrait hero
-
-    if aspect < 0.7:
-        # Tall frame (9:16)
-        if hero_aspect > 1.2:
-            # Landscape hero on tall frame — scale by height to make it
-            # dominant. Width will bleed past edges (common ad technique).
-            scale = (th * 0.55) / hh
-        else:
-            # Portrait/square hero — fill 95% width
-            scale = (tw * 0.95) / hw
-            scale = min(scale, th * 0.75 / hh)
-    elif aspect > 1.3:
-        # Wide frame (16:9)
-        scale = (th * 0.80) / hh
-        scale = min(scale, tw * 0.70 / hw)
-    else:
-        # Square (1:1)
-        scale = (tw * 0.90) / hw
-        scale = min(scale, th * 0.80 / hh)
+    scale = (min(tw, th) * FILL_RATIO) / max(hw, hh)
+    logger.debug(
+        "composite_hero: min(bg)=%d  max(hero)=%d  scale=%.4f",
+        min(tw, th), max(hw, hh), scale,
+    )
 
     nw, nh = max(1, int(hw * scale)), max(1, int(hh * scale))
     hero = hero.resize((nw, nh), Image.LANCZOS)
+    logger.debug("composite_hero: resized hero=%dx%d", nw, nh)
 
     # Center horizontally, center vertically with slight upward offset
     x = (tw - nw) // 2
     y = (th - nh) // 2 + int(th * vertical_offset_ratio)
+    logger.debug("composite_hero: paste position x=%d  y=%d", x, y)
 
     # Composite on an oversized canvas then crop — handles bleed gracefully
     canvas_w = max(tw, nw + abs(x) * 2)

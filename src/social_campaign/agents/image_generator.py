@@ -5,31 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from social_campaign.models import CampaignState
-from social_campaign.utils.image_client import generate_transparent_image
-
-
-def _build_hero_prompt(
-    product_name: str,
-    description: str,
-    brand_name: str,
-    key_features: list[str],
-) -> str:
-    features_str = ", ".join(key_features) if key_features else ""
-    return (
-        f"Professional product photograph of {product_name} on a transparent background. "
-        f"{description}.\n\n"
-        f"The product must be centered, well-lit with soft studio lighting and a subtle "
-        f"green glow/rim light to give it a premium feel. The background must be "
-        f"completely transparent — no surface, no shadow, no gradient, no props.\n\n"
-        f"The product SHOULD have realistic branded packaging with:\n"
-        f"- The brand name '{brand_name}' and a leaf icon/logo on the product\n"
-        f"- The product name '{product_name}' clearly visible on the label\n"
-        f"- Key features or tagline: {features_str}\n"
-        f"- Premium, professional label design with the brand's green (#00A86B) and black color scheme\n\n"
-        f"Style: high-end product photography like Nike, Gatorade, or Hydro Flask packaging. "
-        f"Photorealistic, detailed, polished. The product should look like a real item "
-        f"you'd find on a store shelf — not a plain unlabeled mockup."
-    )
+from social_campaign.utils.image_client import generate_image
 
 
 def generate_images(state: CampaignState) -> dict:
@@ -45,13 +21,30 @@ def generate_images(state: CampaignState) -> dict:
             images[slug] = product.hero_image
             continue
 
-        prompt = _build_hero_prompt(
-            product.name,
-            product.description,
-            brief.brand.name,
-            product.key_features,
-        )
-        img = generate_transparent_image(prompt)
+        brand = brief.brand
+        features_str = ", ".join(product.key_features)
+
+        prompt_parts = [
+            f"Professional product photograph of {product.name} on a transparent background.",
+            f"Product: {product.description}.",
+            "",
+            "Framing & background:",
+            "- Single hero product, centered, with completely transparent background.",
+            "- No surface, shadow, gradient, or props.",
+            "",
+            "Packaging & branding:",
+            f"- Brand: {brand.name}. Product label reads '{product.name}'.",
+            f"- Label callouts: {features_str}.",
+            "",
+            "Brand visual guidelines (adapt lighting, palette, and texture cues):",
+            brand.guidelines,
+            "",
+            "Style: photorealistic, high-end product photography.",
+            "Should look like a real retail item — not a plain unlabeled mockup.",
+        ]
+
+        prompt = "\n".join(prompt_parts)
+        img = generate_image(prompt, background="transparent")
 
         product_dir = output_dir / slug
         product_dir.mkdir(parents=True, exist_ok=True)

@@ -96,7 +96,6 @@ def generate(brief: str, output: str):
             lines.append("\n")
         return lines
 
-    result = {}
     current_node = steps[0][0]
 
     with Live(_build_display(), console=console, refresh_per_second=4) as live:
@@ -104,11 +103,9 @@ def generate(brief: str, output: str):
             "brief_path": str(brief_path),
             "output_dir": str(output_dir),
         }):
-            for node_name, node_result in event.items():
+            for node_name, _node_result in event.items():
                 completed.add(node_name)
-                if node_result is not None:
-                    result.update(node_result)
-                # Advance current_node to the next pending step
+
                 current_node = ""
                 for sn, _ in steps:
                     if sn not in completed:

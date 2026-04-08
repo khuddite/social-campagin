@@ -4,8 +4,12 @@ from __future__ import annotations
 
 from langchain_openai import ChatOpenAI
 
-from social_campaign.models import BackgroundPlan, CampaignState, LocalizedCopy
-from social_campaign.utils.llm_utils import LLM_MODEL, parse_llm_json
+from social_campaign.models import (
+    BackgroundPlansResponse,
+    CampaignState,
+    LocalizedCopy,
+)
+from social_campaign.utils.llm_utils import LLM_MODEL
 
 
 def plan_backgrounds(state: CampaignState) -> dict:
@@ -13,8 +17,6 @@ def plan_backgrounds(state: CampaignState) -> dict:
     brief = state["brief"]
     localized: dict[str, LocalizedCopy] = state["localized_copy"]
 
-    # Pass slug + tone hint only — avoid product names like "Insulated Bottle"
-    # which cause the image model to draw bottles in the background.
     slug_lines: list[str] = []
     for product in brief.products:
         slug = product.slug
@@ -51,19 +53,14 @@ def plan_backgrounds(state: CampaignState) -> dict:
         "Hard rules:\n"
         "- NO text, letters, numbers, logos, UI, watermarks, or people.\n"
         "- NO bottles, containers, cups, tubes, tubs, drinks, or packaging.\n\n"
-        "Respond ONLY with JSON: an object whose keys are product slugs (strings) and values are objects "
-        'with keys "scene_description", "mood", "color_direction" (all strings).'
+        "Return one entry per slug in the `plans` list."
     )
 
-    llm = ChatOpenAI(model=LLM_MODEL, temperature=0.65)
+    llm = ChatOpenAI(model=LLM_MODEL, temperature=0.65).with_structured_output(
+        BackgroundPlansResponse, method="function_calling"
+    )
     response = llm.invoke(prompt)
-    raw = parse_llm_json(response.content)
 
-    plans: dict[str, BackgroundPlan] = {}
-    for product in brief.products:
-        slug = product.slug
-        if slug not in raw:
-            raise ValueError(f"Background plan missing slug {slug!r} in model output.")
-        plans[slug] = BackgroundPlan.model_validate(raw[slug])
+    plans = {plan.slug: plan for plan in response.plans}
 
     return {"background_plans": plans}
