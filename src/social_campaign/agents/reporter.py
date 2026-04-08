@@ -50,7 +50,6 @@ def generate_report(state: CampaignState) -> dict:
         brief=brief,
         copy_variants=state.get("copy_variants", {}),
         localized_copy=state.get("localized_copy", {}),
-        composited_assets=composited,
         thumbnails=thumbnails,
         total_assets=total_assets,
     )

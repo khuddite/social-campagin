@@ -2,12 +2,9 @@
 
 from __future__ import annotations
 
-import logging
 from pathlib import Path
 
-from PIL import Image, ImageDraw, ImageFilter, ImageFont
-
-logger = logging.getLogger(__name__)
+from PIL import Image, ImageDraw, ImageFont, ImageText
 
 # Target sizes for each aspect ratio
 ASPECT_SIZES: dict[str, tuple[int, int]] = {
@@ -62,49 +59,33 @@ def composite_hero_over_background(
     The hero is scaled so its largest side fits within *fill_ratio* of the
     background's smaller dimension — simple, works for any aspect ratio.
     """
-    FILL_RATIO = 0.85
+    FILL_RATIO = 0.5
 
     tw, th = background.size
     background = background.convert("RGBA")
     hero = hero.convert("RGBA")
 
+    # Trim transparent padding so we scale based on actual product pixels
+    bbox = hero.getchannel("A").getbbox()
+    if bbox:
+        hero = hero.crop(bbox)
+
     hw, hh = hero.size
-    logger.debug(
-        "composite_hero: bg=%dx%d  hero=%dx%d  fill_ratio=%.2f",
-        tw, th, hw, hh, FILL_RATIO,
-    )
     if hw == 0 or hh == 0:
         return background
 
-    scale = (min(tw, th) * FILL_RATIO) / max(hw, hh)
-    logger.debug(
-        "composite_hero: min(bg)=%d  max(hero)=%d  scale=%.4f",
-        min(tw, th), max(hw, hh), scale,
-    )
+    scale = FILL_RATIO / max(hw / tw, hh / th)
 
-    nw, nh = max(1, int(hw * scale)), max(1, int(hh * scale))
+    nw, nh = int(hw * scale), int(hh * scale)
     hero = hero.resize((nw, nh), Image.LANCZOS)
-    logger.debug("composite_hero: resized hero=%dx%d", nw, nh)
 
     # Center horizontally, center vertically with slight upward offset
     x = (tw - nw) // 2
     y = (th - nh) // 2 + int(th * vertical_offset_ratio)
-    logger.debug("composite_hero: paste position x=%d  y=%d", x, y)
 
-    # Composite on an oversized canvas then crop — handles bleed gracefully
-    canvas_w = max(tw, nw + abs(x) * 2)
-    canvas_h = max(th, nh + abs(y) * 2)
-    ox = (canvas_w - tw) // 2  # offset to center the background on canvas
-    oy = (canvas_h - th) // 2
-
-    canvas = Image.new("RGBA", (canvas_w, canvas_h), (0, 0, 0, 0))
-    canvas.paste(background, (ox, oy))
-    layer = Image.new("RGBA", (canvas_w, canvas_h), (0, 0, 0, 0))
-    layer.paste(hero, (ox + x, oy + y), hero)
-    canvas = Image.alpha_composite(canvas, layer)
-
-    # Crop back to target size
-    return canvas.crop((ox, oy, ox + tw, oy + th))
+    canvas = background.copy()
+    canvas.paste(hero, (x, y), hero)
+    return canvas
 
 
 def center_crop_to_ratio(img: Image.Image, ratio: str) -> Image.Image:
@@ -126,96 +107,58 @@ def center_crop_to_ratio(img: Image.Image, ratio: str) -> Image.Image:
     return img.resize((target_w, target_h), Image.LANCZOS)
 
 
-def _wrap_text(draw: ImageDraw.ImageDraw, text: str, font, max_width: int) -> str:
-    """Wrap text to fit within max_width pixels."""
-    words = text.split()
-    if not words:
-        return text
-    lines: list[str] = []
-    current = words[0]
-    for word in words[1:]:
-        test = f"{current} {word}"
-        bbox = draw.textbbox((0, 0), test, font=font)
-        if bbox[2] - bbox[0] > max_width:
-            lines.append(current)
-            current = word
-        else:
-            current = test
-    lines.append(current)
-    return "\n".join(lines)
-
-
 def overlay_text_panel(
     img: Image.Image,
     headline: str,
     body: str,
+    *,
+    padding_ratio: float = 0.025,
 ) -> Image.Image:
-    """Overlay headline + body in the lower portion with a frosted backing.
+    """Overlay headline + body at the bottom with a semi-transparent panel.
 
-    Drawn BEFORE the product is composited so the product overlaps the top
-    edge of the text area, creating an editorial intersecting layout.
-    A semi-transparent dark panel behind the text ensures readability
-    regardless of the background image.
+    *padding_ratio* controls the bottom margin between the panel and the
+    image edge, expressed as a fraction of the background height.
     """
     img = img.convert("RGBA")
     w, h = img.size
+    bmargin = int(h * padding_ratio)
+    hpad = int(w * 0.04)
 
     overlay = Image.new("RGBA", (w, h), (0, 0, 0, 0))
     draw = ImageDraw.Draw(overlay)
 
-    # Smaller, tighter text
-    headline_size = max(int(h * 0.048), 22)
-    body_size = max(int(headline_size * 0.35), 11)
+    headline_size = int(h * 0.048)
+    body_size = int(headline_size * 0.35)
     headline_font = _load_font(headline_size, role="headline", text=headline)
     body_font = _load_font(body_size, role="body", text=body)
 
-    # Only uppercase for Latin scripts — CJK scripts don't have case
     if not _has_non_latin(headline):
         headline = headline.upper()
 
-    padding = int(w * 0.04)
-    text_max_width = w - padding * 2
-    headline = _wrap_text(draw, headline, headline_font, text_max_width)
-    body = _wrap_text(draw, body, body_font, text_max_width)
+    text_max_width = w - hpad * 2
+    hl = ImageText.Text(headline, headline_font)
+    hl.wrap(text_max_width)
+    bd = ImageText.Text(body, body_font)
+    bd.wrap(text_max_width)
 
-    headline_bbox = draw.multiline_textbbox((0, 0), headline, font=headline_font)
-    body_bbox = draw.multiline_textbbox((0, 0), body, font=body_font)
-    headline_h = headline_bbox[3] - headline_bbox[1]
-    body_h = body_bbox[3] - body_bbox[1]
+    hl_bbox = hl.get_bbox()
+    bd_bbox = bd.get_bbox()
+    headline_h = hl_bbox[3] - hl_bbox[1]
+    body_h = bd_bbox[3] - bd_bbox[1]
+    vpad = int(h * 0.02)
 
-    gap = int(padding * 0.6)
-    total_text_h = headline_h + gap + body_h
-    panel_pad = int(padding * 0.7)
-    total_block_h = total_text_h + panel_pad * 2
+    panel_bottom = h - bmargin
+    text_overlay_height = 3 * vpad + headline_h + body_h
+    panel_top = panel_bottom - text_overlay_height
+    draw.rectangle([(0, panel_top), (w, panel_bottom)], fill=(0, 0, 0, 160))
 
-    # Position: anchor the bottom of the text block to the bottom of the image
-    margin_bottom = int(h * 0.02)
-    panel_bottom = h - margin_bottom
-    panel_top = panel_bottom - total_block_h
-    text_top = panel_top + panel_pad
+    headline_y = panel_top + vpad
+    draw.text((hpad, headline_y), hl, fill=(255, 255, 255, 255))
 
-    # Frosted dark panel behind text for readability
-    draw.rectangle(
-        [(0, panel_top), (w, panel_bottom)],
-        fill=(0, 0, 0, 160),
-    )
+    body_y = headline_y + headline_h + vpad
+    draw.text((hpad, body_y), bd, fill=(255, 255, 255, 200))
 
-    # Headline
-    headline_y = text_top
-    draw.multiline_text(
-        (padding, headline_y), headline,
-        fill=(255, 255, 255, 255), font=headline_font,
-    )
-
-    # Body text
-    body_y = headline_y + headline_h + gap
-    draw.multiline_text(
-        (padding, body_y), body,
-        fill=(255, 255, 255, 200), font=body_font,
-    )
-
-    result = Image.alpha_composite(img, overlay)
-    return result.convert("RGBA")
+    return Image.alpha_composite(img, overlay)
 
 
 def overlay_logo(
@@ -233,35 +176,14 @@ def overlay_logo(
     except FileNotFoundError:
         return img.convert("RGB")
 
-    max_logo_w = int(w * max_ratio)
     logo_aspect = logo.width / logo.height
-    logo_w = min(logo.width, max_logo_w)
+    logo_w = int(w * max_ratio)
     logo_h = int(logo_w / logo_aspect)
     logo = logo.resize((logo_w, logo_h), Image.LANCZOS)
 
     pad = int(w * padding_ratio)
     x = w - logo_w - pad
     y = pad
-
-    # Soft dark glow behind logo for visibility on any background.
-    # Paint the logo silhouette in black, then Gaussian-blur it for a smooth halo.
-    glow_expand = max(4, int(logo_w * 0.03))
-    glow_canvas = Image.new("RGBA", (w, h), (0, 0, 0, 0))
-    alpha = logo.split()[3]
-    shadow_alpha = alpha.point(lambda a: min(200, a) if a > 30 else 0)
-    shadow = Image.merge("RGBA", [
-        Image.new("L", logo.size, 0),
-        Image.new("L", logo.size, 0),
-        Image.new("L", logo.size, 0),
-        shadow_alpha,
-    ])
-    glow_canvas.paste(shadow, (x, y), shadow)
-    # Blur for a soft halo
-    glow_alpha = glow_canvas.split()[3]
-    glow_alpha = glow_alpha.filter(ImageFilter.GaussianBlur(radius=glow_expand))
-    glow_result = Image.new("RGBA", (w, h), (0, 0, 0, 0))
-    glow_result.putalpha(glow_alpha)
-    img = Image.alpha_composite(img, glow_result)
 
     img.paste(logo, (x, y), logo)
     return img.convert("RGB")
